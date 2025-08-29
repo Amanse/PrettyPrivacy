@@ -1,6 +1,6 @@
 import OpenPGP from "react-native-fast-openpgp";
 
-export async function encryptMessage(message: string, publicKey: string): Promise<string> {
+export async function encryptMessage(message, publicKey) {
     try {
         const encrypted = await OpenPGP.encrypt(
             message,
