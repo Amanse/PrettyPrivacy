@@ -1,13 +1,12 @@
 import * as FileSystem from 'expo-file-system';
 import * as SecureStore from 'expo-secure-store';
-import OpenPGP, {PrivateKeyMetadata, PublicKeyMetadata} from "react-native-fast-openpgp";
-import {PublicKey, PrivateKey} from "@/types/Keys";
+import OpenPGP from "react-native-fast-openpgp";
 
-function isPrivateKey(key: string): boolean {
+function isPrivateKey(key) {
     return key.startsWith('-----BEGIN PGP PRIVATE KEY BLOCK-----');
 }
 
-export async function getPublicKeys(): Promise<PublicKey[]> {
+export async function getPublicKeys() {
     const publicKeys = await SecureStore.getItemAsync('publicKeys');
     if (publicKeys) {
         return JSON.parse(publicKeys);
@@ -15,7 +14,7 @@ export async function getPublicKeys(): Promise<PublicKey[]> {
     return [];
 }
 
-export default async function key_ops(uri: string) {
+export default async function key_ops(uri) {
     console.debug("key ops called with uri:", uri);
     try {
         const contents = await FileSystem.readAsStringAsync(uri);
@@ -30,21 +29,21 @@ export default async function key_ops(uri: string) {
     }
 }
 
-export async function importPrivateKey(contents: string) {
+export async function importPrivateKey(contents) {
     console.debug("importPrivateKey: " + contents);
     const keyData = await OpenPGP.getPrivateKeyMetadata(contents);
     if (!keyData) {
         throw new Error('Invalid private key format.');
     }
 
-    const key: PrivateKey = keyData as PrivateKeyMetadata;
+    const key = keyData;
     key.key = contents;
 
     const existingKeys = await SecureStore.getItemAsync('privateKeys');
     let newData;
     if (existingKeys) {
         const parsedKeys = JSON.parse(existingKeys);
-        if (parsedKeys.some((key: PrivateKeyMetadata) => key.keyID === keyData.keyID)) {
+        if (parsedKeys.some((key) => key.keyID === keyData.keyID)) {
             throw new Error('This private key is already imported.');
         }
         parsedKeys.push(keyData);
@@ -52,7 +51,7 @@ export async function importPrivateKey(contents: string) {
     } else {
         newData = JSON.stringify([keyData]);
     }
-    await SecureStore.setItemAsync('privateKeys', newData, {requireAuthentication: true})
+    await SecureStore.setItemAsync('privateKeys', newData)
     console.debug("importPrivateKey imported: " + newData);
     const publickey = await OpenPGP.convertPrivateKeyToPublicKey(contents);
     if (!publickey) {
@@ -61,21 +60,21 @@ export async function importPrivateKey(contents: string) {
     await importPublicKey(publickey);
 }
 
-export async function importPublicKey(contents: string) {
+export async function importPublicKey(contents) {
     console.debug("importPublicKey: " + contents);
     const keyData = await OpenPGP.getPublicKeyMetadata(contents);
     if (!keyData) {
         throw new Error('Invalid public key format.');
     }
 
-    const key: PublicKey = keyData as PublicKey;
+    const key = keyData;
     key.key = contents;
 
     const existingKeys = await SecureStore.getItemAsync('publicKeys');
     let newData;
     if (existingKeys) {
         const parsedKeys = JSON.parse(existingKeys);
-        if (parsedKeys.some((key: { keyID: string }) => key.keyID === keyData.keyID)) {
+        if (parsedKeys.some((key) => key.keyID === keyData.keyID)) {
             throw new Error('This public key is already imported.');
         }
         parsedKeys.push(keyData);

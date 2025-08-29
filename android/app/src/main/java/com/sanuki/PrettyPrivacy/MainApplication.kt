@@ -1,4 +1,4 @@
-package com.anonymous.PrettyPrivacy
+package com.sanuki.PrettyPrivacy
 
 import android.app.Application
 import android.content.res.Configuration

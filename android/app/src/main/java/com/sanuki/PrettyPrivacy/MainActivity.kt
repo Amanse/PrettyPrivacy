@@ -1,4 +1,4 @@
-package com.anonymous.PrettyPrivacy
+package com.sanuki.PrettyPrivacy
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
