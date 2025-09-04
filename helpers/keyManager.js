@@ -12,7 +12,8 @@ export default class PGPKeyManager {
     getPublicKeys() {
         const keys = this.publicStorage.getAllKeys();
         console.log(keys)
-        return keys.map(keyId => ({[keyId]: JSON.parse(this.publicStorage.getString(keyId))}));
+        // return keys.map(keyId => ({[keyId]: JSON.parse(this.publicStorage.getString(keyId))}));
+        return keys.map(keyId => JSON.parse(this.publicStorage.getString(keyId)));
     }
 
     getPrivateKeys() {
