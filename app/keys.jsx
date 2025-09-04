@@ -1,13 +1,11 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {FAB, List, Text, useTheme, Divider} from 'react-native-paper';
-import keyManager from "../helpers/keyManager";
-import {useLocalSearchParams} from "expo-router";
+import {useData} from "../helpers/contextProvider";
 
 const KeysScreen = () => {
     const theme = useTheme();
-    const {getKeys} = useLocalSearchParams();
-    const [keys, setKeys] = React.useState([]);
+    const {keys} = useData();
     const [fabState, setFabState] = React.useState({open: false});
 
     const onStateChange = ({open}) => setFabState({open});
@@ -33,7 +31,7 @@ const KeysScreen = () => {
                 // Show a message if no keys exist
                 <View style={styles.emptyContainer}>
                     <Text variant="titleMedium">No keys found</Text>
-                    <Text variant="bodySmall">Press 'Add' to import or generate a new key.</Text>
+                    <Text variant="bodySmall">Press &apos;Add&apos; to import or generate a new key.</Text>
                 </View>
             )}
 
