@@ -6,7 +6,7 @@ import {FontAwesome5} from "@expo/vector-icons";
 import {initializeSecureStorage} from "../helpers/storage";
 import {Text} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
-import DataContext from '../helpers/contextProvider'; // Import the context
+import DataContext from '../helpers/contextProvider';
 
 const theme = {...MD3DarkTheme};
 
@@ -14,20 +14,32 @@ function Layout() {
     const theme = useTheme(); // Hook to get theme colors
     const [isStorageInitialized, setIsStorageInitialized] = React.useState(false);
     const [keys, setKeys] = React.useState([]);
+    const keyManager = new PGPKeyManager();
 
     React.useEffect(() => {
         const setup = async () => {
             await initializeSecureStorage();
-            const keyManager = new PGPKeyManager();
+            keyManager.initStorages();
             const publicKeys = keyManager.getPublicKeys();
+            const privateKeys = keyManager.getPrivateKeys();
 
-            setKeys(publicKeys);
+            const finalKeys = publicKeys.map(pubKeyObj => {
+                const keyId = pubKeyObj.id;
+                const privKeyObj = privateKeys.find(privKey => privKey.id === keyId);
+                return {
+                    id: keyId,
+                    userId: pubKeyObj.userId,
+                    hasPrivate: privKeyObj !== undefined,
+                };
+            });
+
+            setKeys(finalKeys);
         };
         setup().then(() => setIsStorageInitialized(true));
     }, []);
 
     return isStorageInitialized ? (
-        <DataContext.Provider value={{keys}}>
+        <DataContext.Provider value={{keys, keyManager}}>
             <Tabs
                 screenOptions={{
                     // Style the header bar
@@ -59,6 +71,13 @@ function Layout() {
                         tabBarIcon: ({color}) => (
                             <FontAwesome5 name="key" size={24} color={color}/>
                         ),
+                    }}
+                />
+                <Tabs.Screen
+                    name="encrypt/encryptText"
+                    options={{
+                        href: null,
+                        title: 'Encrypt Text'
                     }}
                 />
             </Tabs>

@@ -1,9 +1,21 @@
 import React from 'react';
+import {useRouter} from "expo-router"
+import * as Clipboard from "expo-clipboard"
 import {ScrollView} from 'react-native';
 import {List, Divider, useTheme} from 'react-native-paper';
+import {decryptMessage} from "../helpers/crypto_ops";
+import {useData} from "../helpers/contextProvider";
 
 const EncryptDecryptScreen = () => {
     const theme = useTheme();
+    const router = useRouter();
+
+    const readFromClipboardAndDecrypt = async () => {
+        const text = await Clipboard.getStringAsync();
+        const result = await decryptMessage(text)
+        await Clipboard.setStringAsync(result)
+        console.log(result)
+    }
 
     return (
         <ScrollView style={{flex: 1, backgroundColor: theme.colors.background}}>
@@ -16,6 +28,7 @@ const EncryptDecryptScreen = () => {
                 />
                 <List.Item
                     title="Encrypt text"
+                    onPress={() => router.navigate("/encrypt/encryptText")}
                     left={props => <List.Icon {...props} icon="format-letter-case"/>}
                     right={props => <List.Icon {...props} icon="message-text-outline"/>}
                 />
@@ -34,6 +47,7 @@ const EncryptDecryptScreen = () => {
                     title="Read from clipboard"
                     left={props => <List.Icon {...props} icon="clipboard-text-search-outline"/>}
                     right={props => <List.Icon {...props} icon="clipboard-outline"/>}
+                    onPress={() => readFromClipboardAndDecrypt()}
                 />
             </List.Section>
         </ScrollView>

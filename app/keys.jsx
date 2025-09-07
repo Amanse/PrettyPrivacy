@@ -1,15 +1,22 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {FAB, List, Text, useTheme, Divider} from 'react-native-paper';
+import {FAB, List, Text, useTheme, Divider, Chip} from 'react-native-paper';
 import {useData} from "../helpers/contextProvider";
+import PGPKeyManager from "../helpers/keyManager";
 
 const KeysScreen = () => {
     const theme = useTheme();
     const {keys} = useData();
+    console.log(keys)
     const [fabState, setFabState] = React.useState({open: false});
 
     const onStateChange = ({open}) => setFabState({open});
     const {open} = fabState;
+    const keyManager = new PGPKeyManager();
+
+    useEffect(() => {
+        keyManager.initStorages()
+    }, [])
 
     return (
         <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
@@ -22,6 +29,7 @@ const KeysScreen = () => {
                                 title={key.userId}
                                 description={key.id}
                                 left={props => <List.Icon {...props} icon="key-variant"/>}
+                                right={props => <Chip>{key.hasPrivate ? "Private" : "Public"}</Chip>}
                             />
                             {index < keys.length - 1 && <Divider/>}
                         </React.Fragment>
@@ -45,7 +53,9 @@ const KeysScreen = () => {
                     {
                         icon: 'file-import-outline',
                         label: 'Import from file',
-                        onPress: () => console.log('Pressed Import'),
+                        onPress: async () => {
+                            await keyManager.importFromFile();
+                        },
                         size: 'medium',
                     },
                     {
