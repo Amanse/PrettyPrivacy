@@ -5,23 +5,24 @@ import {useTheme, TextInput, Button, Text, Snackbar} from "react-native-paper";
 import React from "react";
 import {useData} from "../../helpers/contextProvider";
 import {encryptMessage} from "../../helpers/crypto_ops";
+import PGPKeyManager from "../../helpers/keyManager";
 
 export default function () {
     const [publicKey, setPublicKey] = React.useState("");
     const [textToEncrypt, setTextToEncrypt] = React.useState("");
     const [encryptedText, setEncryptedText] = React.useState("");
     const {keys} = useData();
-    console.log(keys)
     const theme = useTheme();
+    const keyManager = new PGPKeyManager();
 
     const encryptAndShowOutput = async () => {
-        const keyString = keys.find(key => key.id === publicKey)?.keyString;
-        if (!keyString) {
+        const key = keyManager.getPublicKeyById(publicKey);
+        if (!key) {
             alert("Selected public key not found.");
             return;
         }
 
-        const msg = await encryptMessage(textToEncrypt, keyString);
+        const msg = await encryptMessage(textToEncrypt, key.keyString);
         setEncryptedText(msg)
         await Clipboard.setStringAsync(msg)
 
