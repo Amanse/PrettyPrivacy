@@ -31,6 +31,9 @@ export default class PGPKeyManager {
     }
 
     getPublicKeyById(keyId) {
+        if (!this.publicStorage) {
+            this.initStorages()
+        }
         console.debug("getPublicKeyById ", keyId);
         try {
             console.log(this.publicStorage)
