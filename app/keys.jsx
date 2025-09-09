@@ -6,7 +6,7 @@ import PGPKeyManager from "../helpers/keyManager";
 
 const KeysScreen = () => {
     const theme = useTheme();
-    const {keys} = useData();
+    const {keys, setKeys} = useData();
     console.log(keys)
     const [fabState, setFabState] = React.useState({open: false});
 
@@ -29,7 +29,7 @@ const KeysScreen = () => {
                                 title={key.userId}
                                 description={key.id}
                                 left={props => <List.Icon {...props} icon="key-variant"/>}
-                                right={props => <Chip>{key.hasPrivate ? "Private" : "Public"}</Chip>}
+                                right={props => <Chip>{key.isPrivate ? "Private" : "Public"}</Chip>}
                             />
                             {index < keys.length - 1 && <Divider/>}
                         </React.Fragment>
@@ -54,7 +54,8 @@ const KeysScreen = () => {
                         icon: 'file-import-outline',
                         label: 'Import from file',
                         onPress: async () => {
-                            await keyManager.importFromFile();
+                            const key = await keyManager.importFromFile();
+                            setKeys((k) => [...k, key]);
                         },
                         size: 'medium',
                     },

@@ -6,7 +6,6 @@ import * as FileSystem from 'expo-file-system';
 export default class PGPKeyManager {
 
     constructor() {
-        this.storageInit = false;
     }
 
     initStorages() {
@@ -19,14 +18,11 @@ export default class PGPKeyManager {
 
     getPublicKeys() {
         const keys = this.publicStorage.getAllKeys();
-        console.log(keys)
-        // return keys.map(keyId => ({[keyId]: JSON.parse(this.publicStorage.getString(keyId))}));
         return keys.map(keyId => JSON.parse(this.publicStorage.getString(keyId)));
     }
 
     getPrivateKeys() {
         const keys = this.privateStorage.getAllKeys();
-        // return keys.map(keyId => ({[keyId]: JSON.parse(this.privateStorage.getString(keyId))}));
         return keys.map(keyId => JSON.parse(this.privateStorage.getString(keyId)));
     }
 
@@ -77,7 +73,7 @@ export default class PGPKeyManager {
                     encoding: FileSystem.EncodingType.UTF8,
                 });
 
-                await this.saveKey(content)
+                return await this.saveKey(content)
             } else {
                 console.log('File picking was canceled or no file selected.');
             }
@@ -89,22 +85,28 @@ export default class PGPKeyManager {
 
     async saveKey(keyString) {
         console.log(keyString)
-        const isPrivate = keyString.includes("PUBLIC") ? false : true;
+        const isPrivate = !keyString.includes("PUBLIC");
         let metaData;
         if (isPrivate) {
             metaData = await OpenPGP.getPrivateKeyMetadata(keyString);
         } else {
             metaData = await OpenPGP.getPublicKeyMetadata(keyString);
         }
+        const id = metaData.keyID;
+
+        if (this.publicStorage.contains(id)) {
+            throw new Error("Key with this ID already exists");
+        }
 
         const userId = metaData.identities[0].id;
-        const id = metaData.keyID;
+        const isEncrypted = metaData.encrypted;
 
         const keyData = {
             id,
             userId,
             isPrivate,
             keyString,
+            isEncrypted,
         }
 
         if (isPrivate) {
@@ -118,5 +120,6 @@ export default class PGPKeyManager {
             this.publicStorage.set(id, JSON.stringify(keyData));
         }
         console.log("saved")
+        return keyData
     }
 }
