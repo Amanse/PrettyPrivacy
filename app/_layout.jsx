@@ -29,7 +29,7 @@ function Layout() {
                 return {
                     id: keyId,
                     userId: pubKeyObj.userId,
-                    hasPrivate: privKeyObj !== undefined,
+                    isPrivate: privKeyObj !== undefined,
                 };
             });
 
@@ -39,7 +39,7 @@ function Layout() {
     }, []);
 
     return isStorageInitialized ? (
-        <DataContext.Provider value={{keys}}>
+        <DataContext.Provider value={{keys, setKeys}}>
             <Tabs
                 screenOptions={{
                     // Style the header bar
