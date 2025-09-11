@@ -8,22 +8,30 @@ export default function KeyListItem({item}) {
     const [visible, setVisible] = React.useState(false);
 
     const openMenu = () => setVisible(true);
-
+    const keyManager = new PGPKeyManager();
     const closeMenu = () => setVisible(false);
-    const copyKeyToClipboard = async (keyId) => {
-        const keyManager = new PGPKeyManager();
+    const copyPublicKeyToClipboard = async (keyId) => {
         const key = keyManager.getPublicKeyById(keyId);
         if (key) {
-            console.log("key -> ", key.keyString);
-            try {
-                await Clipboard.setStringAsync(key.keyString);
-            } catch (e) {
-                console.error(e)
-            }
+            await copyToClipboard(key.keyString)
         } else {
             alert("Key not found.");
         }
     }
+
+    const copyPrivateKeyToClipboard = async (keyId) => {
+        const key = keyManager.getPrivateKeyById(keyId);
+        if (key) {
+            await copyToClipboard(key.keyString)
+        } else {
+            alert("Key not found.");
+        }
+    }
+
+    const copyToClipboard = async (text) => {
+        await Clipboard.setStringAsync(text);
+    }
+
     return (
         <View>
             <Menu
@@ -42,11 +50,13 @@ export default function KeyListItem({item}) {
                 <Menu.Item onPress={() => {
                 }} title="Delete"/>
                 <Menu.Item onPress={async () => {
-                    await copyKeyToClipboard(item.id);
+                    await copyPublicKeyToClipboard(item.id);
                     closeMenu();
                 }} title="Copy public key"/>
                 <Divider/>
-                {item.isPrivate ? <Menu.Item onPress={() => {
+                {item.isPrivate ? <Menu.Item onPress={async () => {
+                    await copyPrivateKeyToClipboard(item.id);
+                    closeMenu();
                 }} title="Copy private key"/> : null}
             </Menu>
         </View>
