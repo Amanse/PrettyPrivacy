@@ -15,6 +15,7 @@ function Layout() {
     const [isStorageInitialized, setIsStorageInitialized] = React.useState(false);
     const [keys, setKeys] = React.useState([]);
     const keyManager = new PGPKeyManager();
+    const [updateKey, setUpdateKey] = React.useState(true);
 
     React.useEffect(() => {
         const setup = async () => {
@@ -36,10 +37,10 @@ function Layout() {
             setKeys(finalKeys);
         };
         setup().then(() => setIsStorageInitialized(true));
-    }, []);
+    }, [updateKey]);
 
     return isStorageInitialized ? (
-        <DataContext.Provider value={{keys, setKeys}}>
+        <DataContext.Provider value={{keys, setKeys, setUpdateKey}}>
             <Tabs
                 screenOptions={{
                     // Style the header bar
@@ -78,6 +79,13 @@ function Layout() {
                     options={{
                         href: null,
                         title: 'Encrypt Text'
+                    }}
+                />
+                <Tabs.Screen
+                    name="encrypt/generateKey"
+                    options={{
+                        href: null,
+                        title: 'Generate new key'
                     }}
                 />
             </Tabs>

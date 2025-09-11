@@ -3,10 +3,12 @@ import {View, StyleSheet} from 'react-native';
 import {FAB, List, Text, useTheme, Divider, Chip} from 'react-native-paper';
 import {useData} from "../helpers/contextProvider";
 import PGPKeyManager from "../helpers/keyManager";
+import {useRouter} from "expo-router";
 
 const KeysScreen = () => {
     const theme = useTheme();
     const {keys, setKeys} = useData();
+    const router = useRouter();
     const [fabState, setFabState] = React.useState({open: false});
 
     const onStateChange = ({open}) => setFabState({open});
@@ -61,7 +63,9 @@ const KeysScreen = () => {
                     {
                         icon: 'plus-box-outline',
                         label: 'Generate',
-                        onPress: () => console.log('Pressed Generate'),
+                        onPress: () => {
+                            router.navigate("/encrypt/generateKey")
+                        },
                         size: 'medium',
                     },
                 ]}
