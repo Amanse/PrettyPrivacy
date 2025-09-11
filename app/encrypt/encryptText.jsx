@@ -4,7 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import {useTheme, TextInput, Button, Text, Snackbar} from "react-native-paper";
 import React from "react";
 import {useData} from "../../helpers/contextProvider";
-import {encryptMessage} from "../../helpers/crypto_ops";
+import {encryptMessage} from "../../helpers/cryptoOps";
 import PGPKeyManager from "../../helpers/keyManager";
 
 export default function () {
