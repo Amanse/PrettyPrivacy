@@ -30,11 +30,8 @@ export default class PGPKeyManager {
         if (!this.publicStorage) {
             this.initStorages()
         }
-        console.debug("getPublicKeyById ", keyId);
         try {
-            console.log(this.publicStorage)
             const keyData = this.publicStorage.getString(keyId);
-            console.debug("getPublicKeyById ", keyData);
             return keyData ? JSON.parse(keyData) : null;
         } catch (e) {
             console.error("Error accessing public storage", e);
@@ -123,6 +120,9 @@ export default class PGPKeyManager {
 
     async saveKey(keyString) {
         console.log(keyString)
+        if (!this.publicStorage || !this.privateStorage) {
+            this.initStorages()
+        }
         const isPrivate = !keyString.includes("PUBLIC");
         let metaData;
         if (isPrivate) {
