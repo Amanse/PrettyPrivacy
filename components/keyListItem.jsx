@@ -1,11 +1,13 @@
 import React from "react";
 import {Chip, Button, Divider, List, Menu} from "react-native-paper";
-import {View} from "react-native";
+import {View, Alert} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
 import * as Clipboard from "expo-clipboard"
+import {useData} from "../helpers/contextProvider";
 
 export default function KeyListItem({item}) {
     const [visible, setVisible] = React.useState(false);
+    const {setUpdateKey} = useData();
 
     const openMenu = () => setVisible(true);
     const keyManager = new PGPKeyManager();
@@ -32,6 +34,29 @@ export default function KeyListItem({item}) {
         await Clipboard.setStringAsync(text);
     }
 
+    const showConfirmAlert = () => {
+        Alert.alert(
+            "Confirm Action", // Alert Title
+            "Are you sure you want to remove this key?", // Alert Message
+            [
+                {
+                    text: "No",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel" // Style for the cancel button
+                },
+                {
+                    text: "Yes",
+                    onPress: async () => {
+                        await keyManager.deleteKeyById(item.id);
+                        setUpdateKey(a => !a)
+                    },
+                    style: "destructive" // Style for a destructive action (optional)
+                }
+            ],
+            {cancelable: false} // Prevents dismissing the alert by tapping outside
+        );
+    };
+
     return (
         <View>
             <Menu
@@ -48,6 +73,8 @@ export default function KeyListItem({item}) {
                 )}
             >
                 <Menu.Item onPress={() => {
+                    showConfirmAlert()
+                    closeMenu()
                 }} title="Delete"/>
                 <Menu.Item onPress={async () => {
                     await copyPublicKeyToClipboard(item.id);
