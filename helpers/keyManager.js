@@ -2,7 +2,6 @@ import {generalStorage, getSecureStorage} from './storage';
 import OpenPGP from "react-native-fast-openpgp";
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import m from "expo-font/build/ExpoFontLoader";
 
 export default class PGPKeyManager {
 
