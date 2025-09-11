@@ -3,7 +3,7 @@ import {useRouter} from "expo-router"
 import * as Clipboard from "expo-clipboard"
 import {ScrollView} from 'react-native';
 import {List, Divider, useTheme, Dialog, Portal, Button, TextInput} from 'react-native-paper';
-import {decryptMessage} from "../helpers/crypto_ops";
+import {decryptMessage} from "../helpers/cryptoOps";
 import {useData} from "../helpers/contextProvider";
 
 const EncryptDecryptScreen = () => {
