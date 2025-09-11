@@ -42,6 +42,22 @@ export default class PGPKeyManager {
         }
     }
 
+    async generateKeyPairAndSave(name, email, passphrase) {
+        if (!this.publicStorage) {
+            this.initStorages()
+        }
+
+        const keyPair = await OpenPGP.generate({
+            name,
+            email,
+            passphrase: passphrase || "",
+        });
+
+        await this.saveKey(keyPair.privateKey);
+
+        return "success"
+    }
+
     getPrivateKeyById(keyId) {
         console.debug("getPrivateKeyById", keyId);
         if (!this.privateStorage) {
