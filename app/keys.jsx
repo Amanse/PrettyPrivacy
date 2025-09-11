@@ -7,7 +7,6 @@ import PGPKeyManager from "../helpers/keyManager";
 const KeysScreen = () => {
     const theme = useTheme();
     const {keys, setKeys} = useData();
-    console.log(keys)
     const [fabState, setFabState] = React.useState({open: false});
 
     const onStateChange = ({open}) => setFabState({open});

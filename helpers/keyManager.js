@@ -2,6 +2,7 @@ import {generalStorage, getSecureStorage} from './storage';
 import OpenPGP from "react-native-fast-openpgp";
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import m from "expo-font/build/ExpoFontLoader";
 
 export default class PGPKeyManager {
 
@@ -44,9 +45,32 @@ export default class PGPKeyManager {
 
     getPrivateKeyById(keyId) {
         console.debug("getPrivateKeyById", keyId);
+        if (!this.privateStorage) {
+            this.initStorages()
+        }
         try {
             const keyData = this.privateStorage.getString(keyId);
             return keyData ? JSON.parse(keyData) : null;
+        } catch (e) {
+            console.error("Error accessing private storage", e);
+            throw e;
+        }
+    }
+
+    getPrivateKeyBySubKeyId(subKeyId) {
+        console.debug("getPrivateKeyBySubKeyId", subKeyId);
+        if (!this.privateStorage) {
+            this.initStorages()
+        }
+        try {
+            const keys = this.privateStorage.getAllKeys();
+            for (let keyId of keys) {
+                const keyData = JSON.parse(this.privateStorage.getString(keyId));
+                if (keyData.subKeyId === subKeyId) {
+                    return keyData;
+                }
+            }
+            return null;
         } catch (e) {
             console.error("Error accessing private storage", e);
             throw e;
@@ -66,7 +90,6 @@ export default class PGPKeyManager {
 
             if (!result.canceled && result.assets && result.assets.length > 0) {
                 const file = result.assets[0];
-                console.log('File picked:', file.uri);
 
                 // 2. Read the file's content as text
                 const content = await FileSystem.readAsStringAsync(file.uri, {
@@ -100,12 +123,14 @@ export default class PGPKeyManager {
 
         const userId = metaData.identities[0].id;
         const isEncrypted = metaData.encrypted;
+        const subKeyId = metaData.subKeys && metaData.subKeys.length > 0 ? metaData.subKeys[0].keyID : null;
 
         const keyData = {
             id,
             userId,
             isPrivate,
             keyString,
+            subKeyId,
             isEncrypted,
         }
 
@@ -123,3 +148,4 @@ export default class PGPKeyManager {
         return keyData
     }
 }
+

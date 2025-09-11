@@ -2,7 +2,7 @@ import React from 'react';
 import {useRouter} from "expo-router"
 import * as Clipboard from "expo-clipboard"
 import {ScrollView} from 'react-native';
-import {List, Divider, useTheme} from 'react-native-paper';
+import {List, Divider, useTheme, Dialog, Portal, Button, TextInput} from 'react-native-paper';
 import {decryptMessage} from "../helpers/crypto_ops";
 import {useData} from "../helpers/contextProvider";
 
@@ -10,12 +10,33 @@ const EncryptDecryptScreen = () => {
     const theme = useTheme();
     const router = useRouter();
 
+    const [visible, setVisible] = React.useState(false);
+    const [passPhrase, setPassPhrase] = React.useState("");
+    const [resolvePassphrase, setResolvePassphrase] = React.useState(null);
+
+    const showDialog = () => setVisible(true);
+    const hideDialog = () => setVisible(false);
+
     const readFromClipboardAndDecrypt = async () => {
         const text = await Clipboard.getStringAsync();
-        const result = await decryptMessage(text)
-        await Clipboard.setStringAsync(result)
-        console.log(result)
+        const result = await decryptMessage(text, askPassphrase);
+        await Clipboard.setStringAsync(result.msg)
+        console.log(result.msg)
     }
+
+    const askPassphrase = () => {
+        showDialog();
+        return new Promise((resolve) => {
+            setResolvePassphrase(() => resolve);
+        });
+    }
+
+    const handleDecrypt = () => {
+        if (resolvePassphrase) {
+            resolvePassphrase(passPhrase);
+        }
+        hideDialog();
+    };
 
     return (
         <ScrollView style={{flex: 1, backgroundColor: theme.colors.background}}>
@@ -50,6 +71,18 @@ const EncryptDecryptScreen = () => {
                     onPress={() => readFromClipboardAndDecrypt()}
                 />
             </List.Section>
+
+            <Portal>
+                <Dialog visible={visible} onDismiss={hideDialog}>
+                    <Dialog.Title>Alert</Dialog.Title>
+                    <Dialog.Content>
+                        <TextInput value={passPhrase} onChangeText={setPassPhrase} multiline={false}/>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={handleDecrypt}>Decrypt</Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </ScrollView>
     );
 };
