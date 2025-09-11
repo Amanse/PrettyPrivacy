@@ -40,7 +40,7 @@ function Layout() {
     }, [updateKey]);
 
     return isStorageInitialized ? (
-        <DataContext.Provider value={{keys, setKeys, setUpdateKey}}>
+        <DataContext.Provider value={{keys, setUpdateKey}}>
             <Tabs
                 screenOptions={{
                     // Style the header bar
