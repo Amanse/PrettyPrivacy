@@ -4,6 +4,8 @@ import {FAB, List, Text, useTheme, Divider, Chip} from 'react-native-paper';
 import {useData} from "../helpers/contextProvider";
 import PGPKeyManager from "../helpers/keyManager";
 import {useRouter} from "expo-router";
+import KeyListItem from "../components/keyListItem"
+import * as Clipboard from 'expo-clipboard';
 
 const KeysScreen = () => {
     const theme = useTheme();
@@ -26,12 +28,7 @@ const KeysScreen = () => {
                 <List.Section>
                     {keys.map((key, index) => (
                         <React.Fragment key={key.id}>
-                            <List.Item
-                                title={key.userId}
-                                description={key.id}
-                                left={props => <List.Icon {...props} icon="key-variant"/>}
-                                right={props => <Chip>{key.isPrivate ? "Private" : "Public"}</Chip>}
-                            />
+                            <KeyListItem item={key}/>
                             {index < keys.length - 1 && <Divider/>}
                         </React.Fragment>
                     ))}
@@ -68,6 +65,20 @@ const KeysScreen = () => {
                         },
                         size: 'medium',
                     },
+                    {
+                        icon: 'clipboard-outline',
+                        label: 'Import from clipboard',
+                        onPress: async () => {
+                            try {
+                                const key = await Clipboard.getStringAsync();
+                                await keyManager.saveKey(key);
+                                setUpdateKey(a => !a)
+                            } catch (e) {
+                                console.error(e)
+                            }
+                        },
+                        size: 'medium',
+                    }
                 ]}
                 onStateChange={onStateChange}
             />
