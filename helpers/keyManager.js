@@ -39,6 +39,20 @@ export default class PGPKeyManager {
         }
     }
 
+    async deleteKeyById(keyId) {
+        if (!this.publicStorage || !this.privateStorage) {
+            this.initStorages()
+        }
+        try {
+            this.publicStorage.delete(keyId);
+            this.privateStorage.delete(keyId);
+            return true;
+        } catch (e) {
+            console.error("Error deleting key", e);
+            throw e;
+        }
+    }
+
     async generateKeyPairAndSave(name, email, passphrase) {
         if (!this.publicStorage) {
             this.initStorages()
