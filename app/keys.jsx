@@ -7,7 +7,7 @@ import {useRouter} from "expo-router";
 
 const KeysScreen = () => {
     const theme = useTheme();
-    const {keys, setKeys} = useData();
+    const {keys, setUpdateKey} = useData();
     const router = useRouter();
     const [fabState, setFabState] = React.useState({open: false});
 
@@ -55,8 +55,8 @@ const KeysScreen = () => {
                         icon: 'file-import-outline',
                         label: 'Import from file',
                         onPress: async () => {
-                            const key = await keyManager.importFromFile();
-                            setKeys((k) => [...k, key]);
+                            await keyManager.importFromFile();
+                            setUpdateKey(a => !a)
                         },
                         size: 'medium',
                     },
