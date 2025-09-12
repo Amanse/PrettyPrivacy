@@ -12,7 +12,7 @@ export default function GenerateKeyForm() {
     const router = useRouter();
 
     const {setUpdateKey} = useData();
-    const keyManager = new PGPKeyManager();
+    const keyManager = PGPKeyManager.getInstance();
 
     const handleGenerateKey = () => {
         // Handle key generation logic here

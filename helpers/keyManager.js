@@ -4,6 +4,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 
 export default class PGPKeyManager {
+    static instance = null;
+
+    static getInstance() {
+        if (!PGPKeyManager.instance) {
+            PGPKeyManager.instance = new PGPKeyManager();
+        }
+        return PGPKeyManager.instance;
+    }
 
     constructor() {
     }
