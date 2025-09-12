@@ -77,10 +77,13 @@ const EncryptDecryptScreen = () => {
                     <Dialog.Title>Enter private key password</Dialog.Title>
                     <Dialog.Content>
                         <TextInput value={passPhrase} onChangeText={setPassPhrase} multiline={false}/>
-                        <Text>Save password with biometrics</Text>
-                        <Checkbox status={checked ? 'checked' : 'unchecked'} onPress={() => {
-                            setChecked(!checked)
-                        }}/>
+                        <Checkbox.Item
+                            label="Save password with biometrics"
+                            status={checked ? 'checked' : 'unchecked'}
+                            onPress={() => {
+                                setChecked(!checked);
+                            }}
+                        />
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={handleDecrypt}>Decrypt</Button>
