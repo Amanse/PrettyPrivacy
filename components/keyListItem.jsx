@@ -1,13 +1,16 @@
 import React from "react";
-import {Chip, Button, Divider, List, Menu} from "react-native-paper";
+import {Chip, Button, Divider, List, Menu, Snackbar} from "react-native-paper";
 import {View, Alert} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
 import * as Clipboard from "expo-clipboard"
 import {useData} from "../helpers/contextProvider";
+import * as SecureStore from "expo-secure-store"
+import CustomSnackbar from "./snackBar";
 
 export default function KeyListItem({item}) {
     const [visible, setVisible] = React.useState(false);
     const {setUpdateKey} = useData();
+    const [showClearPassSnackbar, setShowClearPassSnackbar] = React.useState(false);
 
     const openMenu = () => setVisible(true);
     const keyManager = new PGPKeyManager();
@@ -85,7 +88,19 @@ export default function KeyListItem({item}) {
                     await copyPrivateKeyToClipboard(item.id);
                     closeMenu();
                 }} title="Copy private key"/> : null}
+                {item.isPrivate ? <Menu.Item onPress={async () => {
+                    await SecureStore.deleteItemAsync(`passphrase_${item.subKeyId}`);
+                    setShowClearPassSnackbar(true);
+                    closeMenu();
+                }} title="Clear saved passwords"/> : null}
             </Menu>
+
+            <CustomSnackbar
+                visible={showClearPassSnackbar}
+                onDismissSnackBar={() => setShowClearPassSnackbar(false)}
+                title="Cleared Saved passwords"
+                label="dismiss"
+            />
         </View>
     )
 }

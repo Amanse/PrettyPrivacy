@@ -1,5 +1,6 @@
 import OpenPGP from "react-native-fast-openpgp";
 import PGPKeyManager from "./keyManager";
+import * as SecureStore from "expo-secure-store";
 
 const keyManager = new PGPKeyManager()
 
@@ -35,11 +36,30 @@ export async function decryptMessage(message, askPassphraseCallback) {
 
         let msg = "";
         if (privateKeyEntry.isEncrypted) {
-            const pass = await askPassphraseCallback();
-            if (!pass) {
-                return {msg: null, error: 'Passphrase is required to decrypt the private key.'};
+            let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
+            let passPhraseFromCallback;
+            let useBiometrics = false;
+
+            if (!passPhraseEntry) {
+                const result = await askPassphraseCallback();
+                passPhraseFromCallback = result.passPhrase;
+                useBiometrics = result.useBiometrics;
+
+                if (!passPhraseFromCallback) {
+                    return {msg: null, error: 'Passphrase is required to decrypt the private key.'};
+                }
+
+                passPhraseEntry = passPhraseFromCallback;
             }
-            msg = await OpenPGP.decrypt(message, privateKeyEntry.keyString, pass);
+
+            msg = await OpenPGP.decrypt(message, privateKeyEntry.keyString, passPhraseEntry);
+
+            if (useBiometrics && passPhraseFromCallback) {
+                await SecureStore.setItemAsync(`passphrase_${keyId}`, passPhraseFromCallback, {
+                    keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                    requireAuthentication: true,
+                });
+            }
         } else {
             msg = await OpenPGP.decrypt(message, privateKeyEntry.keyString, "");
         }

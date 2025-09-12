@@ -2,7 +2,7 @@ import React from 'react';
 import {useRouter} from "expo-router"
 import * as Clipboard from "expo-clipboard"
 import {ScrollView} from 'react-native';
-import {List, Divider, useTheme, Dialog, Portal, Button, TextInput} from 'react-native-paper';
+import {List, Divider, useTheme, Dialog, Portal, Button, TextInput, Checkbox, Text} from 'react-native-paper';
 import {decryptMessage} from "../helpers/cryptoOps";
 
 const EncryptDecryptScreen = () => {
@@ -12,6 +12,7 @@ const EncryptDecryptScreen = () => {
     const [visible, setVisible] = React.useState(false);
     const [passPhrase, setPassPhrase] = React.useState("");
     const [resolvePassphrase, setResolvePassphrase] = React.useState(null);
+    const [checked, setChecked] = React.useState(false);
 
     const showDialog = () => setVisible(true);
     const hideDialog = () => setVisible(false);
@@ -32,7 +33,7 @@ const EncryptDecryptScreen = () => {
 
     const handleDecrypt = () => {
         if (resolvePassphrase) {
-            resolvePassphrase(passPhrase);
+            resolvePassphrase({passPhrase, useBiometrics: checked});
         }
         hideDialog();
     };
@@ -76,6 +77,10 @@ const EncryptDecryptScreen = () => {
                     <Dialog.Title>Enter private key password</Dialog.Title>
                     <Dialog.Content>
                         <TextInput value={passPhrase} onChangeText={setPassPhrase} multiline={false}/>
+                        <Text>Save password with biometrics</Text>
+                        <Checkbox status={checked ? 'checked' : 'unchecked'} onPress={() => {
+                            setChecked(!checked)
+                        }}/>
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={handleDecrypt}>Decrypt</Button>
