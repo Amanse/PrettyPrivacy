@@ -2,7 +2,7 @@ import OpenPGP from "react-native-fast-openpgp";
 import PGPKeyManager from "./keyManager";
 import * as SecureStore from "expo-secure-store";
 
-const keyManager = new PGPKeyManager()
+const keyManager = PGPKeyManager.getInstance()
 
 export async function encryptMessage(message, publicKey) {
     try {

@@ -59,7 +59,7 @@ export default function KeyListItem({item}) {
             ],
             {cancelable: false} // Prevents dismissing the alert by tapping outside
         );
-    }, [keyManager, setUpdateKey, item.id]);
+    }, [setUpdateKey, item.id]);
 
     return (
         <View>
