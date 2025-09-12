@@ -73,7 +73,7 @@ const EncryptDecryptScreen = () => {
 
             <Portal>
                 <Dialog visible={visible} onDismiss={hideDialog}>
-                    <Dialog.Title>Alert</Dialog.Title>
+                    <Dialog.Title>Enter private key password</Dialog.Title>
                     <Dialog.Content>
                         <TextInput value={passPhrase} onChangeText={setPassPhrase} multiline={false}/>
                     </Dialog.Content>
