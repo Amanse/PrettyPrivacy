@@ -12,32 +12,33 @@ export default function KeyListItem({item}) {
     const {setUpdateKey} = useData();
     const [showClearPassSnackbar, setShowClearPassSnackbar] = React.useState(false);
 
-    const openMenu = () => setVisible(true);
-    const keyManager = new PGPKeyManager();
-    const closeMenu = () => setVisible(false);
-    const copyPublicKeyToClipboard = async (keyId) => {
+    const openMenu = React.useCallback(() => setVisible(true), []);
+    const keyManager = React.useMemo(() => new PGPKeyManager(), []);
+    const closeMenu = React.useCallback(() => setVisible(false), []);
+    const copyToClipboard = React.useCallback(async (text) => {
+        await Clipboard.setStringAsync(text);
+    }, []);
+
+    const copyPublicKeyToClipboard = React.useCallback(async (keyId) => {
         const key = keyManager.getPublicKeyById(keyId);
         if (key) {
             await copyToClipboard(key.keyString)
         } else {
             alert("Key not found.");
         }
-    }
+    }, [keyManager, copyToClipboard]);
 
-    const copyPrivateKeyToClipboard = async (keyId) => {
+    const copyPrivateKeyToClipboard = React.useCallback(async (keyId) => {
         const key = keyManager.getPrivateKeyById(keyId);
         if (key) {
             await copyToClipboard(key.keyString)
         } else {
             alert("Key not found.");
         }
-    }
+    }, [keyManager, copyToClipboard]);
 
-    const copyToClipboard = async (text) => {
-        await Clipboard.setStringAsync(text);
-    }
 
-    const showConfirmAlert = () => {
+    const showConfirmAlert = React.useCallback(() => {
         Alert.alert(
             "Confirm Action", // Alert Title
             "Are you sure you want to remove this key?", // Alert Message
@@ -58,7 +59,7 @@ export default function KeyListItem({item}) {
             ],
             {cancelable: false} // Prevents dismissing the alert by tapping outside
         );
-    };
+    }, [keyManager, setUpdateKey, item.id]);
 
     return (
         <View>
