@@ -1,6 +1,5 @@
 import {Tabs} from 'expo-router';
 import {MD3DarkTheme, Provider as PaperProvider, useTheme} from 'react-native-paper';
-
 import React from "react";
 import {FontAwesome5} from "@expo/vector-icons";
 import {initializeSecureStorage} from "../helpers/storage";

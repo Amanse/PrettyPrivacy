@@ -18,7 +18,19 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.sanuki.PrettyPrivacy"
+      "package": "com.sanuki.PrettyPrivacy",
+      "intentFilters": [
+        {
+          "action": "SEND",
+          "category": ["DEFAULT"],
+          "data": [{ "mimeType": "text/plain" }]
+        },
+        {
+          "action": "SEND",
+          "category": ["DEFAULT"],
+          "data": [{ "mimeType": "*/*" }]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
