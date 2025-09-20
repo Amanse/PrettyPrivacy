@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import {ScrollView} from 'react-native';
 import {List, Divider, useTheme, Dialog, Portal, Button, TextInput, Checkbox, Text, Snackbar} from 'react-native-paper';
 import {decryptMessage, decryptFile} from "../helpers/cryptoOps";
+import {pickFileAndGetData} from "../helpers/general";
 
 const EncryptDecryptScreen = () => {
     const theme = useTheme();
@@ -47,24 +48,7 @@ const EncryptDecryptScreen = () => {
 
     const selectAndDecryptFile = async () => {
         try {
-            const pickerResult = await DocumentPicker.getDocumentAsync({
-                type: '*/*',
-                copyToCacheDirectory: true,
-            });
-
-            if (pickerResult.canceled) {
-                return;
-            }
-
-            const asset = pickerResult.assets[0];
-
-            const outputFilename = asset.name.replace(/\.(gpg|pgp)$/i, '');
-            if (outputFilename === asset.name) {
-                setSnackbar({visible: true, message: 'Error: Not a .gpg or .pgp file.'});
-                return;
-            }
-
-            const tempUri = FileSystem.cacheDirectory + outputFilename;
+            const {tempUri, outputFilename, asset} = await pickFileAndGetData(false);
 
             const {file, error} = await decryptFile({
                 inputUri: asset.uri,
