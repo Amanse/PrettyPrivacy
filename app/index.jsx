@@ -77,29 +77,17 @@ const EncryptDecryptScreen = () => {
                 throw error;
             }
 
+            console.log(`file type-> ${file.mimeType}`)
             router.push({
-                pathname: "/preview", params: {files: JSON.stringify([{uri: file.decryptedUri, name: outputFilename}])}
+                pathname: "/preview",
+                params: {
+                    files: JSON.stringify([{
+                        uri: file.decryptedUri,
+                        name: outputFilename,
+                        mimeType: file.mimeType
+                    }])
+                }
             })
-            // if (decryptError) {
-            //     setSnackbar({ visible: true, message: decryptError });
-            //     return;
-            // }
-            //
-            // const { status } = await MediaLibrary.requestPermissionsAsync();
-            // if (status !== 'granted') {
-            //     setSnackbar({ visible: true, message: 'Permission to save file was denied.' });
-            //     return;
-            // }
-            //
-            // const savedAsset = await MediaLibrary.createAssetAsync(tempUri);
-            // const album = await MediaLibrary.getAlbumAsync('PrettyPrivacy');
-            // if (album) {
-            //     await MediaLibrary.addAssetsToAlbumAsync([savedAsset], album, false);
-            // } else {
-            //     await MediaLibrary.createAlbumAsync('PrettyPrivacy', savedAsset, false);
-            // }
-
-            setSnackbar({visible: true, message: `File saved as ${outputFilename}`});
 
         } catch (err) {
             console.error(err)
