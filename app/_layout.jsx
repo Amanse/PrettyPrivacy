@@ -87,6 +87,12 @@ function Layout() {
                         title: 'Generate new key'
                     }}
                 />
+                <Tabs.Screen
+                    name="preview"
+                    options={{
+                        href: null,
+                    }}
+                />
             </Tabs>
         </DataContext.Provider>
     ) : (<Text>Loading</Text>);
