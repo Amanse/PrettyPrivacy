@@ -61,37 +61,49 @@ const EncryptDecryptScreen = () => {
 
             const outputFilename = asset.name.replace(/\.(gpg|pgp)$/i, '');
             if (outputFilename === asset.name) {
-                setSnackbar({ visible: true, message: 'Error: Not a .gpg or .pgp file.' });
+                setSnackbar({visible: true, message: 'Error: Not a .gpg or .pgp file.'});
                 return;
             }
 
             const tempUri = FileSystem.cacheDirectory + outputFilename;
 
-            const { error: decryptError } = await decryptFile(asset.uri, tempUri, askPassphrase);
+            const {file, error} = await decryptFile({
+                inputUri: asset.uri,
+                outputUri: tempUri,
+                outputFilename
+            }, askPassphrase);
 
-            if (decryptError) {
-                setSnackbar({ visible: true, message: decryptError });
-                return;
+            if (error) {
+                throw error;
             }
 
-            const { status } = await MediaLibrary.requestPermissionsAsync();
-            if (status !== 'granted') {
-                setSnackbar({ visible: true, message: 'Permission to save file was denied.' });
-                return;
-            }
+            router.push({
+                pathname: "/preview", params: {files: JSON.stringify([{uri: file.decryptedUri, name: outputFilename}])}
+            })
+            // if (decryptError) {
+            //     setSnackbar({ visible: true, message: decryptError });
+            //     return;
+            // }
+            //
+            // const { status } = await MediaLibrary.requestPermissionsAsync();
+            // if (status !== 'granted') {
+            //     setSnackbar({ visible: true, message: 'Permission to save file was denied.' });
+            //     return;
+            // }
+            //
+            // const savedAsset = await MediaLibrary.createAssetAsync(tempUri);
+            // const album = await MediaLibrary.getAlbumAsync('PrettyPrivacy');
+            // if (album) {
+            //     await MediaLibrary.addAssetsToAlbumAsync([savedAsset], album, false);
+            // } else {
+            //     await MediaLibrary.createAlbumAsync('PrettyPrivacy', savedAsset, false);
+            // }
 
-            const savedAsset = await MediaLibrary.createAssetAsync(tempUri);
-            const album = await MediaLibrary.getAlbumAsync('PrettyPrivacy');
-            if (album) {
-                await MediaLibrary.addAssetsToAlbumAsync([savedAsset], album, false);
-            } else {
-                await MediaLibrary.createAlbumAsync('PrettyPrivacy', savedAsset, false);
-            }
-
-            setSnackbar({ visible: true, message: `File saved as ${outputFilename}` });
+            setSnackbar({visible: true, message: `File saved as ${outputFilename}`});
 
         } catch (err) {
-            setSnackbar({ visible: true, message: err.message || 'An unexpected error occurred.' });
+            console.error(err)
+            setSnackbar({visible: true, message: err.message || 'An unexpected error occurred.'});
         }
     };
 
@@ -150,7 +162,7 @@ const EncryptDecryptScreen = () => {
             </Portal>
             <Snackbar
                 visible={snackbar.visible}
-                onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
+                onDismiss={() => setSnackbar({...snackbar, visible: false})}
                 duration={Snackbar.DURATION_SHORT}>
                 {snackbar.message}
             </Snackbar>

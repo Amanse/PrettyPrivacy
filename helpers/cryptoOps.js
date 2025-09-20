@@ -18,13 +18,17 @@ export async function encryptMessage(message, publicKey) {
     }
 }
 
-export async function decryptFile(inputUri, outputUri, askPassphraseCallback) {
+export async function decryptFile({inputUri, outputUri, outputFilename}, askPassphraseCallback) {
     // This function uses a native file-to-file decryption for efficiency and reliability.
+    // It decrypts the file to the app's cache directory and returns the URI and filename.
     try {
         // Step 1: Read file header to find the correct decryption key.
         let binaryData;
         try {
-            const fileAsString = await FileSystem.readAsStringAsync(inputUri, { encoding: FileSystem.EncodingType.UTF8, length: 4096 });
+            const fileAsString = await FileSystem.readAsStringAsync(inputUri, {
+                encoding: FileSystem.EncodingType.UTF8,
+                length: 4096
+            });
             if (fileAsString.includes('-----BEGIN PGP MESSAGE-----')) {
                 binaryData = dearmor(fileAsString);
             }
@@ -33,7 +37,10 @@ export async function decryptFile(inputUri, outputUri, askPassphraseCallback) {
         }
 
         if (!binaryData) {
-            const fileAsBase64 = await FileSystem.readAsStringAsync(inputUri, { encoding: FileSystem.EncodingType.Base64, length: 4096 });
+            const fileAsBase64 = await FileSystem.readAsStringAsync(inputUri, {
+                encoding: FileSystem.EncodingType.Base64,
+                length: 4096
+            });
             const binaryString = atob(fileAsBase64);
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {
@@ -76,15 +83,14 @@ export async function decryptFile(inputUri, outputUri, askPassphraseCallback) {
             }
         }
 
-        // Step 3: Call the native file-to-file decryption function.
         const nativeInputPath = inputUri.replace('file://', '');
         const nativeOutputPath = outputUri.replace('file://', '');
         await OpenPGP.decryptFile(nativeInputPath, nativeOutputPath, privateKeyEntry.keyString, passphrase);
-        return { error: null }; // Return success
+        return {file: {decryptedUri: outputUri, filename: outputFilename}, error: null}; // Return success with URI and filename
 
     } catch (e) {
         console.error(e);
-        return { error: e.message || 'An unknown error occurred during file decryption.' };
+        return {file: null, error: e.message || 'An unknown error occurred during file decryption.'};
     }
 }
 
