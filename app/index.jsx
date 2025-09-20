@@ -2,7 +2,6 @@ import React from 'react';
 import {useRouter} from "expo-router"
 import * as Clipboard from "expo-clipboard"
 import * as DocumentPicker from 'expo-document-picker';
-import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import {ScrollView} from 'react-native';
 import {List, Divider, useTheme, Dialog, Portal, Button, TextInput, Checkbox, Text, Snackbar} from 'react-native-paper';

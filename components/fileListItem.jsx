@@ -1,20 +1,23 @@
 import {Alert, Pressable, StyleSheet, Text, View} from "react-native";
 import {Button} from "react-native-paper";
 import * as Sharing from "expo-sharing";
-import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
+import * as IntentLauncher from 'expo-intent-launcher';
 
 export default function FileListItem({item, theme}) {
     const {uri, name, mimeType} = item;
 
     const handleOpenFile = async () => {
-        if (!(await Sharing.isAvailableAsync())) {
-            Alert.alert("Sharing is not available on your platform");
-            return;
-        }
         try {
-            await Sharing.shareAsync(uri, {mimeType});
+            const contentUri = await FileSystem.getContentUriAsync(uri);
+
+            await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+                data: contentUri,
+                flags: 1,
+                type: mimeType,
+            })
         } catch (error) {
+            console.error(error)
             Alert.alert("Error", "Could not open file.");
         }
     };
@@ -42,8 +45,8 @@ export default function FileListItem({item, theme}) {
             const directoryUri = permissions.directoryUri;
             const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, name, mimeType);
 
-            const content = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-            await FileSystem.writeAsStringAsync(fileUri, content, { encoding: FileSystem.EncodingType.Base64 });
+            const content = await FileSystem.readAsStringAsync(uri, {encoding: FileSystem.EncodingType.Base64});
+            await FileSystem.writeAsStringAsync(fileUri, content, {encoding: FileSystem.EncodingType.Base64});
 
             Alert.alert('File Saved', `Successfully saved ${name}.`);
 
