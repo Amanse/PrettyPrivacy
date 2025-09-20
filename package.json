@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "base64-js": "^1.5.1",
     "expo": "~53.0.20",
     "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.7",
@@ -19,9 +20,12 @@
     "expo-file-system": "~18.1.11",
     "expo-font": "~13.3.2",
     "expo-linking": "~7.1.7",
+    "expo-media-library": "~17.1.7",
     "expo-router": "~5.1.4",
     "expo-secure-store": "^14.2.3",
+    "expo-sharing": "~13.1.5",
     "expo-splash-screen": "^0.30.10",
+    "file-type": "^21.0.0",
     "react": "19.0.0",
     "react-native": "0.79.5",
     "react-native-crypto": "^2.2.1",
@@ -33,10 +37,7 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-webview": "13.13.5",
-    "readable-stream": "^4.7.0",
-    "expo-media-library": "~17.1.7",
-    "expo-image-manipulator": "~13.1.7",
-    "expo-sharing": "~13.1.5"
+    "readable-stream": "^4.7.0"
   },
   "devDependencies": {
     "@types/react": "~19.0.10",

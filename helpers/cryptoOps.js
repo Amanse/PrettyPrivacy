@@ -2,6 +2,9 @@ import OpenPGP from "react-native-fast-openpgp";
 import PGPKeyManager from "./keyManager";
 import * as SecureStore from "expo-secure-store";
 import * as FileSystem from 'expo-file-system';
+import {fileTypeFromBuffer} from 'file-type/core';
+import {toByteArray} from 'base64-js';
+import {mimeLookup} from "./general";
 
 const keyManager = PGPKeyManager.getInstance()
 
@@ -86,13 +89,33 @@ export async function decryptFile({inputUri, outputUri, outputFilename}, askPass
         const nativeInputPath = inputUri.replace('file://', '');
         const nativeOutputPath = outputUri.replace('file://', '');
         await OpenPGP.decryptFile(nativeInputPath, nativeOutputPath, privateKeyEntry.keyString, passphrase);
-        return {file: {decryptedUri: outputUri, filename: outputFilename}, error: null}; // Return success with URI and filename
+        const mimeType = await getFileMimeType(outputUri, outputFilename);
+
+        return {file: {decryptedUri: outputUri, filename: outputFilename, mimeType}, error: null}; // Return success with URI and filename
 
     } catch (e) {
         console.error(e);
         return {file: null, error: e.message || 'An unknown error occurred during file decryption.'};
     }
 }
+
+async function getFileMimeType(uri, outputFilename) {
+    const base64Content = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+        length: 4100, // Read the first 4.1 KB of the file
+        position: 0,
+    });
+
+    const byteArray = toByteArray(base64Content);
+    const result = await fileTypeFromBuffer(byteArray);
+
+    if (result === undefined) {
+        return mimeLookup(outputFilename);
+    }
+
+    return result.mime;
+}
+
 
 // This function remains for simple text/clipboard decryption.
 export async function decryptMessage(message, askPassphraseCallback) {
