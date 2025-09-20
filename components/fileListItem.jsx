@@ -2,6 +2,7 @@ import {Alert, Pressable, StyleSheet, Text, View} from "react-native";
 import {Button} from "react-native-paper";
 import * as Sharing from "expo-sharing";
 import * as MediaLibrary from "expo-media-library";
+import * as FileSystem from "expo-file-system";
 
 export default function FileListItem({item, theme}) {
     const {uri, name, mimeType} = item;
@@ -31,30 +32,24 @@ export default function FileListItem({item, theme}) {
     };
 
     const handleSaveFile = async () => {
-        const isMedia = /\.(jpe?g|png|gif|bmp|mp4|mov)$/i.test(name);
-        if (isMedia) {
-            try {
-                const {status} = await MediaLibrary.requestPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert('Permission needed', 'This app needs permission to save files to your media library.');
-                    return;
-                }
-                await MediaLibrary.saveToLibraryAsync(uri);
-                Alert.alert('Saved!', 'File saved to your media library.');
-            } catch (error) {
-                console.error(error);
-                Alert.alert('Error', 'Could not save file to media library.');
-            }
-        } else {
-            if (!(await Sharing.isAvailableAsync())) {
-                Alert.alert("Sharing is not available on your platform");
+        try {
+            const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+            if (!permissions.granted) {
+                // User cancelled the picker
                 return;
             }
-            try {
-                await Sharing.shareAsync(uri, {dialogTitle: `Save ${name}`, mimeType});
-            } catch (error) {
-                Alert.alert("Error", "Could not save file.");
-            }
+
+            const directoryUri = permissions.directoryUri;
+            const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, name, mimeType);
+
+            const content = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+            await FileSystem.writeAsStringAsync(fileUri, content, { encoding: FileSystem.EncodingType.Base64 });
+
+            Alert.alert('File Saved', `Successfully saved ${name}.`);
+
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'An error occurred while saving the file.');
         }
     };
 
