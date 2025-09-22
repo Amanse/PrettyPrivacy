@@ -21,6 +21,41 @@ export async function encryptMessage(message, publicKey) {
     }
 }
 
+/**
+ * Encrypts multiple files using a public key.
+ * @param {Array<{uri: string, name: string}>} files - Array of file objects to encrypt.
+ * @param {string} publicKey - The public key to encrypt the files with.
+ * @returns {Promise<Array<{outputUri: string, name: string}>>} - Array of encrypted file objects.
+ */
+export async function encryptFiles(files, publicKey) {
+    // Note: This function currently only encrypts. It does not sign.
+    // Signing would require a private key and potentially a passphrase,
+    // which is not implemented in the current flow.
+    const outputFiles = [];
+    for (const file of files) {
+        try {
+            const {uri: inputUri, name} = file;
+            // Sanitize filename to prevent path traversal
+            const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const outputFilename = `${safeName}.pgp`;
+            const outputUri = `${FileSystem.cacheDirectory}${outputFilename}`;
+
+            const nativeInputPath = inputUri.replace('file://', '');
+            const nativeOutputPath = outputUri.replace('file://', '');
+
+            // The last two arguments are for an optional private key and passphrase for signing.
+            await OpenPGP.encryptFile(nativeInputPath, nativeOutputPath, publicKey, "", "");
+
+            console.log(mimeLookup(nativeOutputPath));
+            outputFiles.push({uri: outputUri, name: outputFilename, mimeType: "application/pgp-encrypted"});
+        } catch (error) {
+            console.error(`Failed to encrypt file: ${file.name}`, error);
+            // We continue to the next file in case of an error.
+        }
+    }
+    return outputFiles;
+}
+
 export async function decryptFile({inputUri, outputUri, outputFilename}, askPassphraseCallback) {
     // This function uses a native file-to-file decryption for efficiency and reliability.
     // It decrypts the file to the app's cache directory and returns the URI and filename.

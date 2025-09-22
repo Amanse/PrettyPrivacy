@@ -12,16 +12,16 @@ import fileListItem from "../components/fileListItem";
 
 export default function PreviewScreen() {
     const params = useLocalSearchParams();
-    // expecting { files: JSON.stringify([{ uri, name }]) }
+    // expecting { files: JSON.stringify([{ uri, name }]), isEncrypted: 'true' | 'false' }
     const files = params.files ? JSON.parse(params.files) : [];
     const theme = useTheme();
 
     return (
         <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-            <Stack.Screen options={{title: 'Decrypted Files'}}/>
+            <Stack.Screen options={{title: `${params.isEncrypted ? "Encrypted" : "Decrypted"} Files`}}/>
             <FlatList
                 data={files}
-                renderItem={({item}) => fileListItem({item, theme})}
+                renderItem={({item}) => fileListItem({item, theme, isEncrypted: !params.isEncrypted})}
                 keyExtractor={(item) => item.uri}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>

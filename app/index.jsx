@@ -84,6 +84,7 @@ const EncryptDecryptScreen = () => {
                 <List.Subheader>Encrypt</List.Subheader>
                 <List.Item
                     title="Encrypt files"
+                    onPress={() => router.navigate("/encrypt/encryptFiles")}
                     left={props => <List.Icon {...props} icon="file-lock-outline"/>}
                     right={props => <List.Icon {...props} icon="folder-outline"/>}
                 />
