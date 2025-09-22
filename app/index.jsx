@@ -5,7 +5,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import {ScrollView} from 'react-native';
 import {List, Divider, useTheme, Dialog, Portal, Button, TextInput, Checkbox, Text, Snackbar} from 'react-native-paper';
-import {decryptMessage, decryptFile} from "../helpers/cryptoOps";
+import {decryptMessage, decryptFiles} from "../helpers/cryptoOps";
 import {pickFileAndGetData} from "../helpers/general";
 
 const EncryptDecryptScreen = () => {
@@ -48,27 +48,19 @@ const EncryptDecryptScreen = () => {
 
     const selectAndDecryptFile = async () => {
         try {
-            const {tempUri, outputFilename, asset} = await pickFileAndGetData(false);
+            const files = await pickFileAndGetData(false);
 
-            const {file, error} = await decryptFile({
-                inputUri: asset.uri,
-                outputUri: tempUri,
-                outputFilename
-            }, askPassphrase);
-
-            if (error) {
-                throw error;
+            if (files.length <= 0) {
+                setSnackbar({visible: true, message: 'Please select at least one file.'});
+                return;
             }
 
-            console.log(`file type-> ${file.mimeType}`)
+            const res = await decryptFiles(files, askPassphrase);
+
             router.push({
                 pathname: "/preview",
                 params: {
-                    files: JSON.stringify([{
-                        uri: file.decryptedUri,
-                        name: outputFilename,
-                        mimeType: file.mimeType
-                    }])
+                    files: JSON.stringify(res)
                 }
             })
 
@@ -101,7 +93,7 @@ const EncryptDecryptScreen = () => {
             <List.Section>
                 <List.Subheader>Decrypt/Verify</List.Subheader>
                 <List.Item
-                    title="Select input file"
+                    title="Select input files"
                     onPress={selectAndDecryptFile}
                     left={props => <List.Icon {...props} icon="file-key-outline"/>}
                     right={props => <List.Icon {...props} icon="folder-open-outline"/>}

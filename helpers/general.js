@@ -38,22 +38,23 @@ export async function pickFileAndGetData(isEncrypt) {
     const pickerResult = await DocumentPicker.getDocumentAsync({
         type: '*/*',
         copyToCacheDirectory: true,
+        multiple: true
     });
 
     if (pickerResult.canceled) {
         return;
     }
 
-    const asset = pickerResult.assets[0];
-    let outputFilename;
+    return pickerResult.assets.map(asset => {
+        let outputFilename;
 
-    if (isEncrypt) {
-        outputFilename = asset.name + '.gpg';
-    } else {
-        outputFilename = asset.name.replace(/\.(gpg|pgp)$/i, '');
-    }
+        if (isEncrypt) {
+            outputFilename = asset.name + '.gpg';
+        } else {
+            outputFilename = asset.name.replace(/\.(gpg|pgp)$/i, '');
+        }
 
-    const tempUri = FileSystem.cacheDirectory + outputFilename;
-
-    return {tempUri, outputFilename, asset}
+        const tempUri = FileSystem.cacheDirectory + outputFilename;
+        return {inputUri: asset.uri, outputUri: tempUri, outputFilename}
+    })
 }
