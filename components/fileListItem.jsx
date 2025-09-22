@@ -4,10 +4,13 @@ import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import * as IntentLauncher from 'expo-intent-launcher';
 
-export default function FileListItem({item, theme}) {
+export default function FileListItem({item, theme, allowOpen}) {
     const {uri, name, mimeType} = item;
 
     const handleOpenFile = async () => {
+        if (allowOpen) {
+            return await handleShareFile();
+        }
         try {
             const contentUri = await FileSystem.getContentUriAsync(uri);
 
