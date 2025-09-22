@@ -56,82 +56,98 @@ export async function encryptFiles(files, publicKey) {
     return outputFiles;
 }
 
-export async function decryptFile({inputUri, outputUri, outputFilename}, askPassphraseCallback) {
-    // This function uses a native file-to-file decryption for efficiency and reliability.
-    // It decrypts the file to the app's cache directory and returns the URI and filename.
-    try {
-        // Step 1: Read file header to find the correct decryption key.
-        let binaryData;
+/**
+ * Decrypts multiple files. It will ask for a passphrase only once per required private key during the operation.
+ * @param {Array<{uri: string, name: string}>} files - Array of file objects to decrypt.
+ * @param {function} askPassphraseCallback - A callback function that is called when a passphrase is required.
+ * @returns {Promise<Array<{uri: string, name: string, mimeType: string}>>} - Array of decrypted file objects.
+ */
+export async function decryptFiles(files, askPassphraseCallback) {
+    const decryptedFiles = [];
+    const passphrases = {}; // Cache for passphrases for the duration of this call
+
+    for (const file of files) {
+        const {inputUri, outputUri, outputFilename} = file;
         try {
-            const fileAsString = await FileSystem.readAsStringAsync(inputUri, {
-                encoding: FileSystem.EncodingType.UTF8,
-                length: 4096
-            });
-            if (fileAsString.includes('-----BEGIN PGP MESSAGE-----')) {
-                binaryData = dearmor(fileAsString);
+            // This part is similar to the old decryptFile, but adapted for the loop
+            let binaryData;
+            try {
+                const fileAsString = await FileSystem.readAsStringAsync(inputUri, {
+                    encoding: FileSystem.EncodingType.UTF8,
+                    length: 4096
+                });
+                if (fileAsString.includes('-----BEGIN PGP MESSAGE-----')) {
+                    binaryData = dearmor(fileAsString);
+                }
+            } catch (e) {
+                // Ignore error if reading as text fails; it's likely a binary file.
             }
+
+            if (!binaryData) {
+                const fileAsBase64 = await FileSystem.readAsStringAsync(inputUri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                    length: 4096
+                });
+                const binaryString = atob(fileAsBase64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                binaryData = bytes;
+            }
+
+            if (!binaryData) {
+                throw new Error("Could not read PGP file header.");
+            }
+
+            const keyId = findKeyId(binaryData);
+            if (!keyId) {
+                throw new Error('Could not find Key ID in the PGP message.');
+            }
+            const privateKeyEntry = keyManager.getPrivateKeyBySubKeyId(keyId);
+            if (!privateKeyEntry) {
+                throw new Error(`No private key found for Key ID: ${keyId}`);
+            }
+
+            let passphrase = "";
+            if (privateKeyEntry.isEncrypted) {
+                if (passphrases[keyId]) {
+                    passphrase = passphrases[keyId];
+                } else {
+                    let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
+                    if (passPhraseEntry) {
+                        passphrase = passPhraseEntry;
+                    } else {
+                        const result = await askPassphraseCallback();
+                        if (!result.passPhrase) {
+                            throw new Error('Passphrase is required to decrypt the private key.');
+                        }
+                        passphrase = result.passPhrase;
+                        if (result.useBiometrics) {
+                            await SecureStore.setItemAsync(`passphrase_${keyId}`, passphrase, {
+                                keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                                requireAuthentication: true,
+                            });
+                        }
+                    }
+                    passphrases[keyId] = passphrase;
+                }
+            }
+
+            const nativeInputPath = inputUri.replace('file://', '');
+            const nativeOutputPath = outputUri.replace('file://', '');
+            await OpenPGP.decryptFile(nativeInputPath, nativeOutputPath, privateKeyEntry.keyString, passphrase);
+            const mimeType = await getFileMimeType(outputUri, outputFilename);
+
+            decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType});
+
         } catch (e) {
-            // Ignore error if reading as text fails; it's likely a binary file.
+            console.error(`Failed to decrypt ${inputUri}:`, e);
+            // Continue to next file
         }
-
-        if (!binaryData) {
-            const fileAsBase64 = await FileSystem.readAsStringAsync(inputUri, {
-                encoding: FileSystem.EncodingType.Base64,
-                length: 4096
-            });
-            const binaryString = atob(fileAsBase64);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            binaryData = bytes;
-        }
-
-        if (!binaryData) {
-            throw new Error("Could not read PGP file header.");
-        }
-
-        // Step 2: Get the private key and passphrase.
-        const keyId = findKeyId(binaryData);
-        if (!keyId) {
-            throw new Error('Could not find Key ID in the PGP message.');
-        }
-        const privateKeyEntry = keyManager.getPrivateKeyBySubKeyId(keyId);
-        if (!privateKeyEntry) {
-            throw new Error(`No private key found for Key ID: ${keyId}`);
-        }
-
-        let passphrase = "";
-        if (privateKeyEntry.isEncrypted) {
-            let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
-            if (passPhraseEntry) {
-                passphrase = passPhraseEntry;
-            } else {
-                const result = await askPassphraseCallback();
-                if (!result.passPhrase) {
-                    throw new Error('Passphrase is required to decrypt the private key.');
-                }
-                passphrase = result.passPhrase;
-                if (result.useBiometrics) {
-                    await SecureStore.setItemAsync(`passphrase_${keyId}`, passphrase, {
-                        keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-                        requireAuthentication: true,
-                    });
-                }
-            }
-        }
-
-        const nativeInputPath = inputUri.replace('file://', '');
-        const nativeOutputPath = outputUri.replace('file://', '');
-        await OpenPGP.decryptFile(nativeInputPath, nativeOutputPath, privateKeyEntry.keyString, passphrase);
-        const mimeType = await getFileMimeType(outputUri, outputFilename);
-
-        return {file: {decryptedUri: outputUri, filename: outputFilename, mimeType}, error: null}; // Return success with URI and filename
-
-    } catch (e) {
-        console.error(e);
-        return {file: null, error: e.message || 'An unknown error occurred during file decryption.'};
     }
+
+    return decryptedFiles;
 }
 
 async function getFileMimeType(uri, outputFilename) {
