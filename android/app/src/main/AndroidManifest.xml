@@ -27,6 +27,13 @@
         <data android:scheme="prettyprivacy"/>
         <data android:scheme="exp+prettyprivacy"/>
       </intent-filter>
+      <intent-filter data-generated="true">
+        <action android:name="android.intent.action.VIEW"/>
+        <data android:mimeType="application/pdf"/>
+        <data android:mimeType="application/octet-stream"/>
+        <data android:mimeType="application/pgp-encrypted"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
     </activity>
   </application>
 </manifest>

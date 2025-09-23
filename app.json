@@ -21,14 +21,21 @@
       "package": "com.sanuki.PrettyPrivacy",
       "intentFilters": [
         {
-          "action": "SEND",
-          "category": ["DEFAULT"],
-          "data": [{ "mimeType": "text/plain" }]
-        },
-        {
-          "action": "SEND",
-          "category": ["DEFAULT"],
-          "data": [{ "mimeType": "*/*" }]
+          "action": "VIEW",
+          "data": [
+            {
+              "mimeType": "application/pdf"
+            },
+            {
+              "mimeType": "application/octet-stream"
+            },
+            {
+              "mimeType": "application/pgp-encrypted"
+            }
+          ],
+          "category": [
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -46,6 +53,12 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "appleTeamId": "236N762267"
         }
       ]
     ],
