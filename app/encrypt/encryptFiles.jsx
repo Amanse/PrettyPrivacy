@@ -1,12 +1,12 @@
 import {Dropdown} from "react-native-paper-dropdown"
 import {StyleSheet, View, FlatList} from "react-native";
 import {useTheme, Button, List} from "react-native-paper";
-import React from "react";
+import React, {useCallback, useEffect} from "react";
 import {useData} from "../../helpers/contextProvider";
 import PGPKeyManager from "../../helpers/keyManager";
 import * as DocumentPicker from 'expo-document-picker';
 import * as cryptoOpts from '../../helpers/cryptoOps'
-import {useRouter} from "expo-router";
+import {useFocusEffect, useRouter} from "expo-router";
 import LoadingDialog from "../../components/loadingDialog";
 
 export default function EncryptFiles() {
@@ -19,6 +19,16 @@ export default function EncryptFiles() {
     const router = useRouter();
 
     const hideLoading = () => setLoading(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            return () => {
+                setFiles([]);
+                setPublicKey("");
+                setLoading(false);
+            }
+        }, [])
+    )
 
     const pickDocuments = async () => {
         try {

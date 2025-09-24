@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {Button, TextInput, HelperText, useTheme} from 'react-native-paper';
 import PGPKeyManager from "../../helpers/keyManager";
-import {useRouter} from "expo-router";
+import {useFocusEffect, useRouter} from "expo-router";
 import {useData} from "../../helpers/contextProvider";
 
 export default function GenerateKeyForm() {
@@ -13,6 +13,16 @@ export default function GenerateKeyForm() {
 
     const {setUpdateKey} = useData();
     const keyManager = PGPKeyManager.getInstance();
+
+    useFocusEffect(
+        useCallback(() => {
+            return () => {
+                setName('');
+                setEmail('');
+                setPassphrase('');
+            }
+        }, [])
+    )
 
     const handleGenerateKey = () => {
         // Handle key generation logic here
