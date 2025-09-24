@@ -69,7 +69,7 @@ const EncryptDecryptScreen = () => {
         try {
             const files = await pickFileAndGetData(false);
 
-            if (files.length <= 0) {
+            if (!files || files.length === 0) {
                 setSnackbar({visible: true, message: 'Please select at least one file.'});
                 return;
             }
@@ -131,7 +131,9 @@ const EncryptDecryptScreen = () => {
                 <Dialog visible={visible} onDismiss={hideDialog}>
                     <Dialog.Title>Enter private key password</Dialog.Title>
                     <Dialog.Content>
-                        <TextInput value={passPhrase} onChangeText={setPassPhrase} multiline={false}/>
+                        <TextInput secureTextEntry={true} autoComplete="current-password" value={passPhrase}
+                                   onChangeText={setPassPhrase}
+                                   multiline={false}/>
                         <Checkbox.Item
                             label="Save password with biometrics"
                             status={checked ? 'checked' : 'unchecked'}

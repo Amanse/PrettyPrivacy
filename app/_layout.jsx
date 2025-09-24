@@ -30,6 +30,7 @@ function Layout() {
                     id: keyId,
                     userId: pubKeyObj.userId,
                     isPrivate: privKeyObj !== undefined,
+                    subKeyId: pubKeyObj.subKeyId,
                 };
             });
 
