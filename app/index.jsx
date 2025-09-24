@@ -1,5 +1,5 @@
-import React from 'react';
-import {useRouter} from "expo-router"
+import React, {useCallback, useEffect} from 'react';
+import {useFocusEffect, useRouter} from "expo-router"
 import * as Clipboard from "expo-clipboard"
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -33,8 +33,25 @@ const EncryptDecryptScreen = () => {
     const [isLoading, setIsLoading] = React.useState(false);
 
     const showDialog = () => setVisible(true);
-    const hideDialog = () => setVisible(false);
+    const hideDialog = () => {
+        setVisible(false)
+        setPassPhrase("");
+        setChecked(false);
+    }
     const hideLoading = () => setIsLoading(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            return () => {
+                setIsLoading(false);
+                setVisible(false);
+                setResolvePassphrase(null);
+                setPassPhrase("");
+                setChecked(false);
+                setSnackbar({visible: false, message: ''});
+            };
+        }, [])
+    )
 
     const readFromClipboardAndDecrypt = async () => {
         setIsLoading(true);

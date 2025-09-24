@@ -2,11 +2,12 @@ import {Dropdown} from "react-native-paper-dropdown"
 import {StyleSheet, View} from "react-native";
 import * as Clipboard from 'expo-clipboard';
 import {useTheme, TextInput, Button, Text, Snackbar} from "react-native-paper";
-import React from "react";
+import React, {useCallback, useEffect} from "react";
 import {useData} from "../../helpers/contextProvider";
 import {encryptMessage} from "../../helpers/cryptoOps";
 import PGPKeyManager from "../../helpers/keyManager";
 import LoadingDialog from "../../components/loadingDialog";
+import {useFocusEffect} from "expo-router";
 
 export default function () {
     const [publicKey, setPublicKey] = React.useState("");
@@ -18,6 +19,17 @@ export default function () {
     const keyManager = new PGPKeyManager();
 
     const hideLoading = () => setLoading(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            return () => {
+                setPublicKey("");
+                setTextToEncrypt("");
+                setEncryptedText("");
+                setLoading(false);
+            }
+        }, [])
+    )
 
     const encryptAndShowOutput = async () => {
         setLoading(true);
