@@ -7,14 +7,18 @@ import PGPKeyManager from "../../helpers/keyManager";
 import * as DocumentPicker from 'expo-document-picker';
 import * as cryptoOpts from '../../helpers/cryptoOps'
 import {useRouter} from "expo-router";
+import LoadingDialog from "../../components/loadingDialog";
 
 export default function EncryptFiles() {
     const [publicKey, setPublicKey] = React.useState("");
     const [files, setFiles] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
     const {keys} = useData();
     const theme = useTheme();
     const keyManager = new PGPKeyManager();
     const router = useRouter();
+
+    const hideLoading = () => setLoading(false);
 
     const pickDocuments = async () => {
         try {
@@ -33,20 +37,18 @@ export default function EncryptFiles() {
     };
 
     const encryptFiles = async () => {
+        setLoading(true);
         const key = keyManager.getPublicKeyById(publicKey);
         if (!key) {
             alert("Selected public key not found.");
             return;
         }
-        console.log(`starting encryption for ${files.length} files`)
-        // File encryption logic to be implemented here
         const res = await cryptoOpts.encryptFiles(files, key.keyString);
-        console.log(res)
+        setLoading(false);
         router.push({
             pathname: '/preview',
             params: {files: JSON.stringify(res)}
         });
-        console.log('Encrypting files:', files.map(f => f.name).join(', '));
     }
 
     return (
@@ -88,6 +90,7 @@ export default function EncryptFiles() {
             >
                 Encrypt Files
             </Button>
+            <LoadingDialog visible={loading} color={theme.colors.primary} onDismiss={hideLoading}/>
         </View>
     );
 }
