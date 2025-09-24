@@ -154,7 +154,10 @@ export default class PGPKeyManager {
         }
         const id = metaData.keyID;
 
-        if (this.publicStorage.contains(id)) {
+        const alreadyPrivate = this.privateStorage.contains(id);
+        const alreadyPublic = this.publicStorage.contains(id);
+
+        if ((isPrivate && alreadyPrivate && alreadyPublic) || (!isPrivate && alreadyPublic)) {
             throw new Error("Key with this ID already exists");
         }
 
@@ -176,8 +179,12 @@ export default class PGPKeyManager {
             let pubData = {...keyData};
             pubData.keyString = pubKey;
             pubData.isPrivate = false;
-            this.publicStorage.set(id, JSON.stringify(pubData));
-            this.privateStorage.set(id, JSON.stringify(keyData));
+            if (!alreadyPublic) {
+                this.publicStorage.set(id, JSON.stringify(pubData));
+            }
+            if (!alreadyPrivate) {
+                this.privateStorage.set(id, JSON.stringify(keyData));
+            }
         } else {
             this.publicStorage.set(id, JSON.stringify(keyData));
         }
