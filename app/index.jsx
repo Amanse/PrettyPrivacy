@@ -4,9 +4,22 @@ import * as Clipboard from "expo-clipboard"
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import {ScrollView} from 'react-native';
-import {List, Divider, useTheme, Dialog, Portal, Button, TextInput, Checkbox, Text, Snackbar} from 'react-native-paper';
+import {
+    List,
+    Divider,
+    useTheme,
+    Dialog,
+    Portal,
+    Button,
+    TextInput,
+    Checkbox,
+    Text,
+    Snackbar,
+    ActivityIndicator
+} from 'react-native-paper';
 import {decryptMessage, decryptFiles} from "../helpers/cryptoOps";
 import {pickFileAndGetData} from "../helpers/general";
+import LoadingDialog from "../components/loadingDialog";
 
 const EncryptDecryptScreen = () => {
     const theme = useTheme();
@@ -17,13 +30,17 @@ const EncryptDecryptScreen = () => {
     const [resolvePassphrase, setResolvePassphrase] = React.useState(null);
     const [checked, setChecked] = React.useState(false);
     const [snackbar, setSnackbar] = React.useState({visible: false, message: ''});
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const showDialog = () => setVisible(true);
     const hideDialog = () => setVisible(false);
+    const hideLoading = () => setIsLoading(false);
 
     const readFromClipboardAndDecrypt = async () => {
+        setIsLoading(true);
         const text = await Clipboard.getStringAsync();
         const result = await decryptMessage(text, askPassphrase);
+        setIsLoading(false);
         if (result.error) {
             setSnackbar({visible: true, message: result.error});
         } else {
@@ -33,6 +50,7 @@ const EncryptDecryptScreen = () => {
     }
 
     const askPassphrase = () => {
+        setIsLoading(false);
         showDialog();
         return new Promise((resolve) => {
             setResolvePassphrase(() => resolve);
@@ -44,6 +62,7 @@ const EncryptDecryptScreen = () => {
             resolvePassphrase({passPhrase, useBiometrics: checked});
         }
         hideDialog();
+        setIsLoading(true);
     };
 
     const selectAndDecryptFile = async () => {
@@ -55,7 +74,9 @@ const EncryptDecryptScreen = () => {
                 return;
             }
 
+            setIsLoading(true);
             const res = await decryptFiles(files, askPassphrase);
+            setIsLoading(false);
 
             router.push({
                 pathname: "/preview",
@@ -123,13 +144,14 @@ const EncryptDecryptScreen = () => {
                         <Button onPress={handleDecrypt}>Decrypt</Button>
                     </Dialog.Actions>
                 </Dialog>
+                <Snackbar
+                    visible={snackbar.visible}
+                    onDismiss={() => setSnackbar({...snackbar, visible: false})}
+                    duration={Snackbar.DURATION_SHORT}>
+                    {snackbar.message}
+                </Snackbar>
             </Portal>
-            <Snackbar
-                visible={snackbar.visible}
-                onDismiss={() => setSnackbar({...snackbar, visible: false})}
-                duration={Snackbar.DURATION_SHORT}>
-                {snackbar.message}
-            </Snackbar>
+            <LoadingDialog onDismiss={hideLoading} isLoading={isLoading} color={theme.colors.primary}/>
         </ScrollView>
     );
 };

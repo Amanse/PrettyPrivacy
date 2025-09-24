@@ -6,16 +6,21 @@ import React from "react";
 import {useData} from "../../helpers/contextProvider";
 import {encryptMessage} from "../../helpers/cryptoOps";
 import PGPKeyManager from "../../helpers/keyManager";
+import LoadingDialog from "../../components/loadingDialog";
 
 export default function () {
     const [publicKey, setPublicKey] = React.useState("");
     const [textToEncrypt, setTextToEncrypt] = React.useState("");
     const [encryptedText, setEncryptedText] = React.useState("");
+    const [loading, setLoading] = React.useState(false);
     const {keys} = useData();
     const theme = useTheme();
     const keyManager = new PGPKeyManager();
 
+    const hideLoading = () => setLoading(false);
+
     const encryptAndShowOutput = async () => {
+        setLoading(true);
         const key = keyManager.getPublicKeyById(publicKey);
         if (!key) {
             alert("Selected public key not found.");
@@ -23,9 +28,9 @@ export default function () {
         }
 
         const msg = await encryptMessage(textToEncrypt, key.keyString);
+        setLoading(false);
         setEncryptedText(msg)
         await Clipboard.setStringAsync(msg)
-
     }
 
     return <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
@@ -56,6 +61,7 @@ export default function () {
         </Button>
 
         <Text>{encryptedText}</Text>
+        <LoadingDialog visible={loading} color={theme.colors.primary} onDismiss={hideLoading}/>
     </View>;
 }
 
