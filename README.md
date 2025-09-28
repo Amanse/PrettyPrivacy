@@ -1,50 +1,42 @@
-# Welcome to your Expo app 👋
+# PrettyPrivacy 
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+PrettyPrivacy is a simple OpenPGP encryption application for Android. Built with React Native (Expo). <br />
+[Pretty Good Privacy](https://en.wikipedia.org/wiki/Pretty_Good_Privacy) <br />
+<sup>This app uses AI generated code in places</sup>
 
-## Get started
+<img width="128" height="128" alt="pretty privacy logo" src="https://github.com/user-attachments/assets/32350382-619b-4657-95a6-dc9307b7559b" />
 
-1. Install dependencies
+***
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+-   File and text encryption and decryption
+-   Import keys from file/Clipboard or generate one in the app
+-   Save password for keys with biometrics, Stored in android's secure store with encryption phrase.
+-   Private keys are stored in encrypted mmkv store.
 
-   ```bash
-   npx expo start
-   ```
+***
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Installation
 
 ```bash
-npm run reset-project
+cd android && ./gradlew app:assembleRelease
 ```
+and install the generated apk file. Github releases coming soon.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+***
 
-## Learn more
+## How to Use
 
-To learn more about developing your project with Expo, look at the following resources:
+1.  **Import Your Keys:** Go to the 'Keys' tab and import your PGP private key and the public keys of your contacts.
+2.  **Share public key:**: If you generated key in app, you can long click on key to copy public key which someone else can import.
+3.  **Encrypt/Decrypt:** For encryption choose whom to encrypt for and enter text or select files.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Screenshots
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+<img width="540" height="1200" alt="Screenshot_1759068406" src="https://github.com/user-attachments/assets/f5f570af-b6a9-4713-8729-bdfc9273dc4a" />
+<img width="540" height="1200" alt="Screenshot_1759068452" src="https://github.com/user-attachments/assets/1dd01427-714a-4d74-8bc1-75bb4f40f457" />
+<img width="540" height="1200" alt="Screenshot_1759068471" src="https://github.com/user-attachments/assets/d32f5d2e-cfbf-495f-a4d4-48ce47aedd32" />
+<img width="540" height="1200" alt="Screenshot_1759068484" src="https://github.com/user-attachments/assets/c3a75027-a737-47b0-8284-1dcf4b8d4172" />
+<img width="540" height="1200" alt="Screenshot_1759068501" src="https://github.com/user-attachments/assets/bd65b2e2-764b-4b37-8980-3f4626062917" />
+<img width="540" height="1200" alt="Screenshot_1759068536" src="https://github.com/user-attachments/assets/aef86703-fdf1-4673-92a7-bed0c8f1029f" />
