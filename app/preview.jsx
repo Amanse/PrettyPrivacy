@@ -5,10 +5,11 @@
 //   params: { files: JSON.stringify([{ uri: 'file://...', name: 'file1.txt' }]) },
 // });
 
-import {View, Text, FlatList, Pressable, Button, StyleSheet, Alert} from 'react-native';
+import {View, Text, FlatList, StyleSheet} from 'react-native';
 import {useLocalSearchParams, Stack} from 'expo-router';
-import {useTheme} from "react-native-paper";
+import {Appbar, useTheme} from "react-native-paper";
 import fileListItem from "../components/fileListItem";
+import Share from 'react-native-share';
 
 export default function PreviewScreen() {
     const params = useLocalSearchParams();
@@ -16,13 +17,39 @@ export default function PreviewScreen() {
     const files = params.files ? JSON.parse(params.files) : [];
     const theme = useTheme();
 
+    const shareAllFiles = async () => {
+        try {
+            const fileUris = files.map(file => file.uri);
+
+            const shareOptions = {
+                title: 'Sharing Decrypted files',
+                message: 'Here are some files for you!',
+                urls: fileUris
+            }
+
+            await Share.open(shareOptions)
+        } catch (e) {
+          if (e.message !== "User did not share") {
+            console.error(e.message)
+          }
+        }
+    }
+
     return (
         <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-            <Stack.Screen options={{title: `${params.isEncrypted ? "Encrypted" : "Decrypted"} Files`}}/>
+            <Stack.Screen options={{
+                header: (props) => (
+                    <Appbar.Header>
+                        <Appbar.Content
+                            title={`${params.isEncrypted ? "Encrypted" : "Decrypted"} Files`}/>
+                        <Appbar.Action icon="share-variant" onPress={shareAllFiles}/>
+                    </Appbar.Header>
+                )
+            }}/>
             <FlatList
                 data={files}
                 renderItem={({item}) => fileListItem({item, theme, isEncrypted: !params.isEncrypted})}
-                keyExtractor={(item) => item.uri}
+                keyExtractor={(item, index) => item.uri+index}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <Text style={{color: theme.colors.text}}>No files to preview.</Text>
