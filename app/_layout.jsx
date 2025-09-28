@@ -98,6 +98,7 @@ function Layout() {
                     name="encrypt/encryptFiles"
                     options={{
                         href: null,
+                        title: "Encrypt files"
                     }}
                 />
             </Tabs>
