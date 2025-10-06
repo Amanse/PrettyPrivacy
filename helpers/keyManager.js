@@ -154,6 +154,10 @@ export default class PGPKeyManager {
             }
             // Backwards Compatibility
             const metaData = await OpenPGP.getPublicKeyMetadata(keyData.keyString);
+            if (metaData.canSign) {
+                const newKeyData = {...keyData, signingKey: metaData.keyIDNumeric};
+                this.publicStorage.set(keyId, JSON.stringify(newKeyData));
+            }
             if (signingKeyId === metaData.keyIDNumeric) {
                 console.log(keyData)
                 return keyData;
