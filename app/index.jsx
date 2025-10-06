@@ -63,6 +63,7 @@ const EncryptDecryptScreen = () => {
         } else {
             await Clipboard.setStringAsync(result.msg);
             setSnackbar({visible: true, message: 'Decrypted message copied to clipboard.'});
+            console.log(result.isVerified);
         }
     }
 

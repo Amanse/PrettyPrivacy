@@ -193,16 +193,55 @@ export async function decryptMessage(message, askPassphraseCallback) {
                 const result = await askPassphraseCallback();
                 passPhraseEntry = result.passPhrase;
             }
-            msg = await OpenPGP.decrypt(message, privateKeyEntry.keyString, passPhraseEntry);
+            msg = await decryptVerifyMessage(message, passPhraseEntry, privateKeyEntry.keyString);
         } else {
-            msg = await OpenPGP.decrypt(message, privateKeyEntry.keyString, "");
+            msg = await decryptVerifyMessage(message, "", privateKeyEntry.keyString);
         }
 
-        return {msg, error: null}
+        return {msg: msg.msg, isVerified: msg.isVerified, error: null}
     } catch (e) {
         console.error(e);
         throw e;
     }
+}
+
+async function decryptVerifyMessage(message, passPhrase, privateKey) {
+    let signingKey;
+    let isSigned;
+    const pubKey = {publicKey: ""};
+    try {
+        await OpenPGP.decrypt(message, privateKey, passPhrase, {}, pubKey);
+    } catch (e) {
+        if (e.message === "stringResponse: message is not signed") {
+            isSigned = false;
+        } else {
+            const regex = /signedKeyId:(\d+)/;
+            const matchResult = e.message.match(regex);
+            if (matchResult) {
+                isSigned = true;
+                signingKey = matchResult[1];
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    let msg;
+    if (!isSigned) {
+        msg = await OpenPGP.decrypt(message, privateKey, passPhrase);
+        return {msg, isVerified: false}
+    }
+
+    signingKey = await keyManager.getPublicKeyFromSigningKey(signingKey);
+    const entity = {publicKey: signingKey.keyString};
+
+    try {
+        msg = await OpenPGP.decrypt(message, privateKey, passPhrase, {}, entity);
+    } catch (e) {
+        throw e;
+    }
+
+    return {msg, isVerified: true}
 }
 
 /**
