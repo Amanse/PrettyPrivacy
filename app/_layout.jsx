@@ -21,6 +21,7 @@ function Layout() {
             await initializeSecureStorage();
             keyManager.initStorages();
             const publicKeys = keyManager.getPublicKeys();
+            console.log(publicKeys);
             const privateKeys = keyManager.getPrivateKeys();
 
             const finalKeys = publicKeys.map(pubKeyObj => {
