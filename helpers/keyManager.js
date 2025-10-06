@@ -140,6 +140,28 @@ export default class PGPKeyManager {
         }
     };
 
+    async getPublicKeyFromSigningKey(signingKeyId) {
+        console.log('getPublicKeyFromSigningKey', signingKeyId);
+        if (!this.publicStorage) {
+            this.initStorages()
+        }
+        const pubKeys = this.publicStorage.getAllKeys();
+        for (let keyId of pubKeys) {
+            const keyData = JSON.parse(this.publicStorage.getString(keyId));
+            console.log(keyData);
+            if (keyData.signingKey === signingKeyId) {
+                return keyData;
+            }
+            // Backwards Compatibility
+            const metaData = await OpenPGP.getPublicKeyMetadata(keyData.keyString);
+            if (signingKeyId === metaData.keyIDNumeric) {
+                console.log(keyData)
+                return keyData;
+            }
+        }
+        return null;
+    }
+
     async saveKey(keyString) {
         console.log(keyString)
         if (!this.publicStorage || !this.privateStorage) {
@@ -164,6 +186,7 @@ export default class PGPKeyManager {
         const userId = metaData.identities[0].id;
         const isEncrypted = metaData.encrypted;
         const subKeyId = metaData.subKeys && metaData.subKeys.length > 0 ? metaData.subKeys[0].keyID : null;
+        const canSign = metaData.canSign;
 
         const keyData = {
             id,
@@ -172,6 +195,7 @@ export default class PGPKeyManager {
             keyString,
             subKeyId,
             isEncrypted,
+            signingKey: canSign ? metaData.keyIdNumeric() : null,
         }
 
         if (isPrivate) {
