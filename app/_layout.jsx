@@ -101,6 +101,13 @@ function Layout() {
                         title: "Encrypt files"
                     }}
                 />
+                <Tabs.Screen
+                    name="textPreview"
+                    options={{
+                        href: null,
+                        title: "Decrypted Text"
+                    }}
+                />
             </Tabs>
         </DataContext.Provider>
     ) : (<Text>Loading</Text>);

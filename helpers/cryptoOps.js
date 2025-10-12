@@ -8,13 +8,44 @@ import {mimeLookup} from "./general";
 
 const keyManager = PGPKeyManager.getInstance()
 
-export async function encryptMessage(message, publicKey) {
+export async function encryptMessage(message, publicKey, signingKey = null, askPassphraseCallback = null) {
     try {
-        const encrypted = await OpenPGP.encrypt(
+        let options = {};
+        if (signingKey) {
+            const privateKeyEntry = keyManager.getPrivateKeyById(signingKey);
+            if (!privateKeyEntry) {
+                throw new Error(`No private key found for Key ID: ${signingKey}`);
+            }
+            let passphrase = "";
+            if (privateKeyEntry.isEncrypted) {
+                let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${privateKeyEntry.subKeyId}`);
+                if (passPhraseEntry) {
+                    passphrase = passPhraseEntry;
+                } else {
+                    const result = await askPassphraseCallback();
+                    if (!result.passPhrase) {
+                        throw new Error('Passphrase is required to decrypt the private key.');
+                    }
+                    passphrase = result.passPhrase;
+                    if (result.useBiometrics) {
+                        await SecureStore.setItemAsync(`passphrase_${privateKeyEntry.id}`, passphrase, {
+                            keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                            requireAuthentication: true,
+                        });
+                    }
+                }
+            }
+            options = {
+                privateKey: privateKeyEntry.keyString,
+                passphrase: passphrase
+            };
+        }
+
+        return await OpenPGP.encrypt(
             message,
             publicKey,
+            signingKey ? options : null
         );
-        return encrypted;
     } catch (error) {
         console.error('Encryption failed:', error);
         throw new Error('Failed to encrypt the message. Please check the public key and try again.');
@@ -27,15 +58,11 @@ export async function encryptMessage(message, publicKey) {
  * @param {string} publicKey - The public key to encrypt the files with.
  * @returns {Promise<Array<{outputUri: string, name: string}>>} - Array of encrypted file objects.
  */
-export async function encryptFiles(files, publicKey) {
-    // Note: This function currently only encrypts. It does not sign.
-    // Signing would require a private key and potentially a passphrase,
-    // which is not implemented in the current flow.
+export async function encryptFiles(files, publicKey, signingKey = null, askPassphraseCallback = null) {
     const outputFiles = [];
     for (const file of files) {
         try {
             const {uri: inputUri, name} = file;
-            // Sanitize filename to prevent path traversal
             const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
             const outputFilename = `${safeName}.pgp`;
             const outputUri = `${FileSystem.cacheDirectory}${outputFilename}`;
@@ -43,8 +70,41 @@ export async function encryptFiles(files, publicKey) {
             const nativeInputPath = inputUri.replace('file://', '');
             const nativeOutputPath = outputUri.replace('file://', '');
 
-            // The last two arguments are for an optional private key and passphrase for signing.
-            await OpenPGP.encryptFile(nativeInputPath, nativeOutputPath, publicKey, "", "");
+            let privateKey = "";
+            let passphrase = "";
+
+            if (signingKey) {
+                const privateKeyEntry = keyManager.getPrivateKeyById(signingKey);
+                if (!privateKeyEntry) {
+                    throw new Error(`No private key found for Key ID: ${signingKey}`);
+                }
+                privateKey = privateKeyEntry.keyString;
+
+                if (privateKeyEntry.isEncrypted) {
+                    let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${privateKeyEntry.subKeyId}`);
+                    if (passPhraseEntry) {
+                        passphrase = passPhraseEntry;
+                    } else {
+                        const result = await askPassphraseCallback();
+                        if (!result.passPhrase) {
+                            throw new Error('Passphrase is required to decrypt the private key.');
+                        }
+                        passphrase = result.passPhrase;
+                        if (result.useBiometrics) {
+                            await SecureStore.setItemAsync(`passphrase_${privateKeyEntry.id}`, passphrase, {
+                                keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                                requireAuthentication: true,
+                            });
+                        }
+                    }
+                }
+            }
+
+            if (signingKey) {
+                await OpenPGP.encryptFile(nativeInputPath, nativeOutputPath, publicKey, {privateKey, passphrase});
+            } else {
+                await OpenPGP.encryptFile(nativeInputPath, nativeOutputPath, publicKey);
+            }
 
             console.log(mimeLookup(nativeOutputPath));
             outputFiles.push({uri: outputUri, name: outputFilename, mimeType: "application/pgp-encrypted"});
@@ -136,10 +196,10 @@ export async function decryptFiles(files, askPassphraseCallback) {
 
             const nativeInputPath = inputUri.replace('file://', '');
             const nativeOutputPath = outputUri.replace('file://', '');
-            await OpenPGP.decryptFile(nativeInputPath, nativeOutputPath, privateKeyEntry.keyString, passphrase);
+            const {isVerified} = await decryptVerifyFile(nativeInputPath, nativeOutputPath, passphrase, privateKeyEntry.keyString);
             const mimeType = await getFileMimeType(outputUri, outputFilename);
 
-            decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType});
+            decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified});
 
         } catch (e) {
             console.error(`Failed to decrypt ${inputUri}:`, e);
@@ -187,22 +247,101 @@ export async function decryptMessage(message, askPassphraseCallback) {
         }
 
         let msg = "";
+        let passPhrase = "";
         if (privateKeyEntry.isEncrypted) {
             let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
             if (!passPhraseEntry) {
                 const result = await askPassphraseCallback();
                 passPhraseEntry = result.passPhrase;
             }
-            msg = await OpenPGP.decrypt(message, privateKeyEntry.keyString, passPhraseEntry);
-        } else {
-            msg = await OpenPGP.decrypt(message, privateKeyEntry.keyString, "");
+            passPhrase = passPhraseEntry;
         }
 
-        return {msg, error: null}
+        msg = await decryptVerifyMessage(message, passPhrase, privateKeyEntry.keyString);
+
+        return {msg: msg.msg, isVerified: msg.isVerified, error: null}
     } catch (e) {
         console.error(e);
         throw e;
     }
+}
+
+async function decryptVerifyFile(inputUri, outputUri, passPhrase, privateKey) {
+    let signingKey;
+    let isSigned;
+    const pubKey = {publicKey: ""};
+    try {
+        await OpenPGP.decryptFile(inputUri, outputUri, privateKey, passPhrase, {}, pubKey);
+    } catch (e) {
+        if (e.message.includes("message is not signed")) {
+            isSigned = false;
+        } else {
+            const regex = /signedKeyId:(\d+)/;
+            const matchResult = e.message.match(regex);
+            if (matchResult) {
+                isSigned = true;
+                signingKey = matchResult[1];
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    if (!isSigned) {
+        await OpenPGP.decryptFile(inputUri, outputUri, privateKey, passPhrase)
+        return {isVerified: false}
+    }
+
+    signingKey = await keyManager.getPublicKeyFromSigningKey(signingKey);
+    const entity = {publicKey: signingKey.keyString};
+
+    try {
+        await OpenPGP.decryptFile(inputUri, outputUri, privateKey, passPhrase, {}, entity);
+    } catch (e) {
+        throw e;
+    }
+
+    return {isVerified: true}
+
+}
+
+async function decryptVerifyMessage(message, passPhrase, privateKey) {
+    let signingKey;
+    let isSigned;
+    const pubKey = {publicKey: ""};
+    try {
+        await OpenPGP.decrypt(message, privateKey, passPhrase, {}, pubKey);
+    } catch (e) {
+        if (e.message === "stringResponse: message is not signed") {
+            isSigned = false;
+        } else {
+            const regex = /signedKeyId:(\d+)/;
+            const matchResult = e.message.match(regex);
+            if (matchResult) {
+                isSigned = true;
+                signingKey = matchResult[1];
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    let msg;
+    if (!isSigned) {
+        msg = await OpenPGP.decrypt(message, privateKey, passPhrase);
+        return {msg, isVerified: false}
+    }
+
+    signingKey = await keyManager.getPublicKeyFromSigningKey(signingKey);
+    const entity = {publicKey: signingKey.keyString};
+
+    try {
+        msg = await OpenPGP.decrypt(message, privateKey, passPhrase, {}, entity);
+    } catch (e) {
+        throw e;
+    }
+
+    return {msg, isVerified: true}
 }
 
 /**
