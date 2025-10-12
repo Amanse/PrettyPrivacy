@@ -187,16 +187,17 @@ export async function decryptMessage(message, askPassphraseCallback) {
         }
 
         let msg = "";
+        let passPhrase = "";
         if (privateKeyEntry.isEncrypted) {
             let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
             if (!passPhraseEntry) {
                 const result = await askPassphraseCallback();
                 passPhraseEntry = result.passPhrase;
             }
-            msg = await decryptVerifyMessage(message, passPhraseEntry, privateKeyEntry.keyString);
-        } else {
-            msg = await decryptVerifyMessage(message, "", privateKeyEntry.keyString);
+            passPhrase = passPhraseEntry;
         }
+
+        msg = await decryptVerifyMessage(message, passPhrase, privateKeyEntry.keyString);
 
         return {msg: msg.msg, isVerified: msg.isVerified, error: null}
     } catch (e) {
