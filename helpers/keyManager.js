@@ -198,7 +198,7 @@ export default class PGPKeyManager {
             keyString,
             subKeyId,
             isEncrypted,
-            signingKey: canSign ? metaData.keyIdNumeric() : null,
+            signingKey: canSign ? metaData.keyIdNumeric : null,
         }
 
         if (isPrivate) {
