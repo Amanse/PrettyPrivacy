@@ -1,0 +1,9 @@
+## Privacy Policy
+
+We do no run any infrastructure and only provide a means to use PGP encryption on android for files and text. The app is completely offline and open source.
+
+### Data collected
+None. The app is fully offline
+
+### Permissions:
+It can only access files which are selected by user and uses Operating system's file picker to get access to them. It can access text from clipboard on user action.
