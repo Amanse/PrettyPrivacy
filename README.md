@@ -14,6 +14,7 @@ PrettyPrivacy is a simple OpenPGP encryption application for Android. Built with
 -   Import keys from file/Clipboard or generate one in the app
 -   Save password for keys with biometrics, Stored in android's secure store with encryption phrase.
 -   Private keys are stored in encrypted mmkv store.
+-   Sign and verify files and messages
 
 ***
 
@@ -39,4 +40,4 @@ and install the generated apk file. Github releases coming soon.
 <img width="540" height="1200" alt="Screenshot_1759068471" src="https://github.com/user-attachments/assets/d32f5d2e-cfbf-495f-a4d4-48ce47aedd32" />
 <img width="540" height="1200" alt="Screenshot_1759068484" src="https://github.com/user-attachments/assets/c3a75027-a737-47b0-8284-1dcf4b8d4172" />
 <img width="540" height="1200" alt="Screenshot_1759068501" src="https://github.com/user-attachments/assets/bd65b2e2-764b-4b37-8980-3f4626062917" />
-<img width="540" height="1200" alt="Screenshot_1759068536" src="https://github.com/user-attachments/assets/aef86703-fdf1-4673-92a7-bed0c8f1029f" />
+<img width="540" height="1200" alt="Screenshot_1760292077" src="https://github.com/user-attachments/assets/b7112e1e-d6be-4ba9-8367-092e76ec8fc4" />
