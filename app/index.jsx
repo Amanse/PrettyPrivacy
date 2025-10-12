@@ -1,25 +1,18 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import {useFocusEffect, useRouter} from "expo-router"
 import * as Clipboard from "expo-clipboard"
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
 import {ScrollView} from 'react-native';
 import {
     List,
     Divider,
     useTheme,
-    Dialog,
     Portal,
-    Button,
-    TextInput,
-    Checkbox,
-    Text,
     Snackbar,
-    ActivityIndicator
 } from 'react-native-paper';
 import {decryptMessage, decryptFiles} from "../helpers/cryptoOps";
 import {pickFileAndGetData} from "../helpers/general";
 import LoadingDialog from "../components/loadingDialog";
+import PassphraseDialog from "../components/passphraseDialog";
 
 const EncryptDecryptScreen = () => {
     const theme = useTheme();
@@ -61,9 +54,13 @@ const EncryptDecryptScreen = () => {
         if (result.error) {
             setSnackbar({visible: true, message: result.error});
         } else {
-            await Clipboard.setStringAsync(result.msg);
-            setSnackbar({visible: true, message: 'Decrypted message copied to clipboard.'});
-            console.log(result.isVerified);
+            router.push({
+                pathname: '/textPreview',
+                params: {
+                    text: result.msg,
+                    isVerified: result.isVerified,
+                }
+            });
         }
     }
 
@@ -145,25 +142,17 @@ const EncryptDecryptScreen = () => {
                 />
             </List.Section>
 
+            <PassphraseDialog
+                visible={visible}
+                onDismiss={hideDialog}
+                onSubmit={handleDecrypt}
+                passPhrase={passPhrase}
+                setPassPhrase={setPassPhrase}
+                checked={checked}
+                setChecked={setChecked}
+                submitLabel="Decrypt"
+            />
             <Portal>
-                <Dialog visible={visible} onDismiss={hideDialog}>
-                    <Dialog.Title>Enter private key password</Dialog.Title>
-                    <Dialog.Content>
-                        <TextInput secureTextEntry={true} autoComplete="current-password" value={passPhrase}
-                                   onChangeText={setPassPhrase}
-                                   multiline={false}/>
-                        <Checkbox.Item
-                            label="Save password with biometrics"
-                            status={checked ? 'checked' : 'unchecked'}
-                            onPress={() => {
-                                setChecked(!checked);
-                            }}
-                        />
-                    </Dialog.Content>
-                    <Dialog.Actions>
-                        <Button onPress={handleDecrypt}>Decrypt</Button>
-                    </Dialog.Actions>
-                </Dialog>
                 <Snackbar
                     visible={snackbar.visible}
                     onDismiss={() => setSnackbar({...snackbar, visible: false})}
