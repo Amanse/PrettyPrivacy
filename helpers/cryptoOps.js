@@ -136,10 +136,12 @@ export async function decryptFiles(files, askPassphraseCallback) {
 
             const nativeInputPath = inputUri.replace('file://', '');
             const nativeOutputPath = outputUri.replace('file://', '');
-            await OpenPGP.decryptFile(nativeInputPath, nativeOutputPath, privateKeyEntry.keyString, passphrase);
+            const {isVerified} = await decryptVerifyFile(nativeInputPath, nativeOutputPath, passphrase, privateKeyEntry.keyString);
             const mimeType = await getFileMimeType(outputUri, outputFilename);
 
-            decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType});
+            console.log(isVerified);
+
+            decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified});
 
         } catch (e) {
             console.error(`Failed to decrypt ${inputUri}:`, e);
@@ -204,6 +206,45 @@ export async function decryptMessage(message, askPassphraseCallback) {
         console.error(e);
         throw e;
     }
+}
+
+async function decryptVerifyFile(inputUri, outputUri, passPhrase, privateKey) {
+    let signingKey;
+    let isSigned;
+    const pubKey = {publicKey: ""};
+    try {
+        await OpenPGP.decryptFile(inputUri, outputUri, privateKey, passPhrase, {}, pubKey);
+    } catch (e) {
+        if (e.message.includes("message is not signed")) {
+            isSigned = false;
+        } else {
+            const regex = /signedKeyId:(\d+)/;
+            const matchResult = e.message.match(regex);
+            if (matchResult) {
+                isSigned = true;
+                signingKey = matchResult[1];
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    if (!isSigned) {
+        await OpenPGP.decryptFile(inputUri, outputUri, privateKey, passPhrase)
+        return {isVerified: false}
+    }
+
+    signingKey = await keyManager.getPublicKeyFromSigningKey(signingKey);
+    const entity = {publicKey: signingKey.keyString};
+
+    try {
+        await OpenPGP.decryptFile(inputUri, outputUri, privateKey, passPhrase, {}, entity);
+    } catch (e) {
+        throw e;
+    }
+
+    return {isVerified: true}
+
 }
 
 async function decryptVerifyMessage(message, passPhrase, privateKey) {
