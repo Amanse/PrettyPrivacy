@@ -4,8 +4,8 @@ import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import * as IntentLauncher from 'expo-intent-launcher';
 
-export default function FileListItem({item, theme, allowOpen}) {
-    const {uri, name, mimeType} = item;
+export default function FileListItem({item, theme, allowOpen, showIndividualStatus}) {
+    const {uri, name, mimeType, isVerified} = item;
 
     const handleOpenFile = async () => {
         if (allowOpen) {
@@ -71,9 +71,14 @@ export default function FileListItem({item, theme, allowOpen}) {
                 onPress={handleOpenFile}
                 style={styles.pressable}
             >
-                <Text style={[styles.fileName, {color: theme.colors.onBackground}]} numberOfLines={1}>
-                    {name}
-                </Text>
+                <View>
+                    <Text style={[styles.fileName, {color: theme.colors.onBackground}]} numberOfLines={1}>
+                        {name}
+                    </Text>
+                    {showIndividualStatus && isVerified && (
+                        <Text style={{color: theme.colors.primary, textAlign: 'center', fontSize: 12}}>Verified</Text>
+                    )}
+                </View>
             </Pressable>
             <Button
                 mode="contained-tonal"

@@ -148,7 +148,6 @@ export default class PGPKeyManager {
         const pubKeys = this.publicStorage.getAllKeys();
         for (let keyId of pubKeys) {
             const keyData = JSON.parse(this.publicStorage.getString(keyId));
-            console.log(keyData);
             if (keyData.signingKey === signingKeyId) {
                 return keyData;
             }
