@@ -1,5 +1,5 @@
 import {Dropdown} from "react-native-paper-dropdown"
-import {StyleSheet, View} from "react-native";
+import {ScrollView, StyleSheet, View} from "react-native";
 import * as Clipboard from 'expo-clipboard';
 import {useTheme, TextInput, Button, Text, Checkbox} from "react-native-paper";
 import React, {useCallback} from "react";
@@ -100,13 +100,15 @@ export default function () {
             />
         )}
 
-        <TextInput
-            label="Enter text here..."
-            value={textToEncrypt}
-            onChangeText={setTextToEncrypt}
-            multiline={true}
-            style={{marginTop: 16}}
-        />
+        <ScrollView style={{flex: 1}}>
+            <TextInput
+                label="Enter text here..."
+                value={textToEncrypt}
+                onChangeText={setTextToEncrypt}
+                multiline={true}
+                style={{marginTop: 16}}
+            />
+        </ScrollView>
 
         <Button
             disabled={publicKey === "" || textToEncrypt === "" || (toSign && signingKey === "")}
