@@ -10,7 +10,7 @@ import LoadingDialog from "../../components/loadingDialog";
 import {useFocusEffect} from "expo-router";
 import PassphraseDialog from "../../components/passphraseDialog";
 
-export default function () {
+export default function EncryptText() {
     const [publicKey, setPublicKey] = React.useState("");
     const [signingKey, setSigningKey] = React.useState("");
     const [textToEncrypt, setTextToEncrypt] = React.useState("");

@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {FAB, List, Text, useTheme, Divider, Chip} from 'react-native-paper';
+import {FAB, List, Text, useTheme, Divider} from 'react-native-paper';
 import {useData} from "../helpers/contextProvider";
 import PGPKeyManager from "../helpers/keyManager";
 import {useRouter} from "expo-router";
@@ -15,11 +15,11 @@ const KeysScreen = () => {
 
     const onStateChange = ({open}) => setFabState({open});
     const {open} = fabState;
-    const keyManager = new PGPKeyManager();
+    const keyManager = React.useMemo(() => new PGPKeyManager(), []);
 
     useEffect(() => {
         keyManager.initStorages()
-    }, [])
+    }, [keyManager])
 
     return (
         <View style={[styles.container, {backgroundColor: theme.colors.background}]}>

@@ -19,8 +19,8 @@ export default function FileListItem({item, theme, allowOpen, showIndividualStat
                 flags: 1,
                 type: mimeType,
             })
-        } catch (error) {
-            console.error(error)
+        } catch (_error) {
+            console.error(_error)
             Alert.alert("Error", "Could not open file.");
         }
     };
@@ -32,7 +32,7 @@ export default function FileListItem({item, theme, allowOpen, showIndividualStat
         }
         try {
             await Sharing.shareAsync(uri, {mimeType});
-        } catch (error) {
+        } catch (_error) {
             Alert.alert("Error", "Could not share file.");
         }
     };
@@ -53,8 +53,8 @@ export default function FileListItem({item, theme, allowOpen, showIndividualStat
 
             Alert.alert('File Saved', `Successfully saved ${name}.`);
 
-        } catch (error) {
-            console.error(error);
+        } catch (_error) {
+            console.error(_error);
             Alert.alert('Error', 'An error occurred while saving the file.');
         }
     };

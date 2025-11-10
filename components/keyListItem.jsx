@@ -1,5 +1,5 @@
 import React from "react";
-import {Chip, Button, Divider, List, Menu, Snackbar} from "react-native-paper";
+import {Chip, Divider, List, Menu} from "react-native-paper";
 import {View, Alert} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
 import * as Clipboard from "expo-clipboard"
@@ -59,7 +59,7 @@ export default function KeyListItem({item}) {
             ],
             {cancelable: false} // Prevents dismissing the alert by tapping outside
         );
-    }, [setUpdateKey, item.id]);
+    }, [setUpdateKey, item.id, keyManager]);
 
     return (
         <View>
