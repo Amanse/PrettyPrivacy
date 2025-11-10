@@ -13,7 +13,7 @@ function Layout() {
     const theme = useTheme(); // Hook to get theme colors
     const [isStorageInitialized, setIsStorageInitialized] = React.useState(false);
     const [keys, setKeys] = React.useState([]);
-    const keyManager = new PGPKeyManager();
+    const keyManager = React.useMemo(() => new PGPKeyManager(), []);
     const [updateKey, setUpdateKey] = React.useState(true);
 
     React.useEffect(() => {
@@ -37,7 +37,7 @@ function Layout() {
             setKeys(finalKeys);
         };
         setup().then(() => setIsStorageInitialized(true));
-    }, [updateKey]);
+    }, [updateKey, keyManager]);
 
     return isStorageInitialized ? (
         <DataContext.Provider value={{keys, setUpdateKey}}>

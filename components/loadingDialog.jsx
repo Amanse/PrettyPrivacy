@@ -1,6 +1,6 @@
 import {Portal, Dialog, ActivityIndicator} from "react-native-paper";
 
-export default function ({isLoading, onDismiss, color}) {
+export default function LoadingDialog({isLoading, onDismiss, color}) {
     return (
         <Portal>
             <Dialog visible={isLoading} onDismiss={onDismiss}>
