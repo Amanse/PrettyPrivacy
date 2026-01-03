@@ -1,13 +1,13 @@
 import {Dropdown} from "react-native-paper-dropdown"
 import {ScrollView, StyleSheet, View} from "react-native";
 import * as Clipboard from 'expo-clipboard';
-import {useTheme, TextInput, Button, Text, Checkbox} from "react-native-paper";
+import {useTheme, TextInput, Button, Text, Checkbox, Menu, IconButton} from "react-native-paper";
 import React, {useCallback} from "react";
 import {useData} from "../../helpers/contextProvider";
-import {encryptMessage} from "../../helpers/cryptoOps";
+import {encryptMessage, encryptSymmetricMessage} from "../../helpers/cryptoOps";
 import PGPKeyManager from "../../helpers/keyManager";
 import LoadingDialog from "../../components/loadingDialog";
-import {useFocusEffect} from "expo-router";
+import {useFocusEffect, useNavigation} from "expo-router";
 import PassphraseDialog from "../../components/passphraseDialog";
 
 export default function EncryptText() {
@@ -20,11 +20,36 @@ export default function EncryptText() {
     const {keys} = useData();
     const theme = useTheme();
     const keyManager = new PGPKeyManager();
+    const navigation = useNavigation();
 
     const [passphrase, setPassphrase] = React.useState("");
     const [passphraseVisible, setPassphraseVisible] = React.useState(false);
     const [resolvePassphrase, setResolvePassphrase] = React.useState(null);
     const [checked, setChecked] = React.useState(false);
+
+    const [isSymmetric, setIsSymmetric] = React.useState(false);
+    const [symmetricPassphrase, setSymmetricPassphrase] = React.useState("");
+    const [menuVisible, setMenuVisible] = React.useState(false);
+
+    const openMenu = () => setMenuVisible(true);
+    const closeMenu = () => setMenuVisible(false);
+
+    React.useEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <Menu
+                    visible={menuVisible}
+                    onDismiss={closeMenu}
+                    anchor={<IconButton icon="dots-vertical" onPress={openMenu} />}
+                >
+                    <Menu.Item onPress={() => {
+                        setIsSymmetric(!isSymmetric);
+                        closeMenu();
+                    }} title={isSymmetric ? "Disable Symmetric" : "Enable Symmetric"} />
+                </Menu>
+            ),
+        });
+    }, [navigation, menuVisible, isSymmetric]);
 
     const hideLoading = () => setLoading(false);
     const hidePassphrase = () => {
@@ -42,6 +67,8 @@ export default function EncryptText() {
                 setLoading(false);
                 setSigningKey("");
                 setToSign(false);
+                setIsSymmetric(false);
+                setSymmetricPassphrase("");
             }
         }, [])
     )
@@ -64,38 +91,69 @@ export default function EncryptText() {
 
     const encryptAndShowOutput = async () => {
         setLoading(true);
-        const key = keyManager.getPublicKeyById(publicKey);
-        if (!key) {
-            alert("Selected public key not found.");
-            setLoading(false);
-            return;
-        }
 
-        const msg = await encryptMessage(textToEncrypt, key.keyString, toSign ? signingKey : null, askPassphrase);
-        setLoading(false);
-        setEncryptedText(msg)
-        await Clipboard.setStringAsync(msg)
+        try {
+            let msg;
+            if (isSymmetric) {
+                if (!symmetricPassphrase) {
+                    alert("Please enter a passphrase.");
+                    setLoading(false);
+                    return;
+                }
+                msg = await encryptSymmetricMessage(textToEncrypt, symmetricPassphrase);
+            } else {
+                const key = keyManager.getPublicKeyById(publicKey);
+                if (!key) {
+                    alert("Selected public key not found.");
+                    setLoading(false);
+                    return;
+                }
+                msg = await encryptMessage(textToEncrypt, key.keyString, toSign ? signingKey : null, askPassphrase);
+            }
+            
+            setEncryptedText(msg)
+            await Clipboard.setStringAsync(msg)
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
     }
 
     return <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-        <Dropdown
-            label="Encrypt for"
-            placeholder="Select Public Key"
-            options={keys.map(key => ({label: key.userId, value: key.id}))}
-            value={publicKey}
-            onSelect={setPublicKey}
-            style={{marginTop: 16}}
-        />
+        {!isSymmetric && (
+            <>
+                <Dropdown
+                    label="Encrypt for"
+                    placeholder="Select Public Key"
+                    options={keys.map(key => ({label: key.userId, value: key.id}))}
+                    value={publicKey}
+                    onSelect={setPublicKey}
+                    style={{marginTop: 16}}
+                />
 
-        <Checkbox.Item status={toSign ? 'checked' : 'unchecked'} label="Sign" onPress={() => setToSign(val => !val)}/>
+                <Checkbox.Item status={toSign ? 'checked' : 'unchecked'} label="Sign" onPress={() => setToSign(val => !val)}/>
 
-        {toSign && (
-            <Dropdown
-                label="Sign with"
-                placeholder="Select Private Key"
-                options={keys.filter(k => k.isPrivate).map(key => ({label: key.userId, value: key.id}))}
-                value={signingKey}
-                onSelect={setSigningKey}
+                {toSign && (
+                    <Dropdown
+                        label="Sign with"
+                        placeholder="Select Private Key"
+                        options={keys.filter(k => k.isPrivate).map(key => ({label: key.userId, value: key.id}))}
+                        value={signingKey}
+                        onSelect={setSigningKey}
+                        style={{marginTop: 16}}
+                    />
+                )}
+            </>
+        )}
+
+        {isSymmetric && (
+            <TextInput
+                label="Passphrase"
+                value={symmetricPassphrase}
+                onChangeText={setSymmetricPassphrase}
+                secureTextEntry
                 style={{marginTop: 16}}
             />
         )}
@@ -111,7 +169,7 @@ export default function EncryptText() {
         </ScrollView>
 
         <Button
-            disabled={publicKey === "" || textToEncrypt === "" || (toSign && signingKey === "")}
+            disabled={(isSymmetric ? symmetricPassphrase === "" : publicKey === "") || textToEncrypt === "" || (toSign && signingKey === "")}
             mode="contained"
             style={{margin: 20}}
             onPress={() => encryptAndShowOutput()}

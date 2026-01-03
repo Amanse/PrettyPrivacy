@@ -52,6 +52,15 @@ export async function encryptMessage(message, publicKey, signingKey = null, askP
     }
 }
 
+export async function encryptSymmetricMessage(message, passphrase) {
+    try {
+        return await OpenPGP.encryptSymmetric(message, passphrase);
+    } catch (error) {
+        console.error('Symmetric Encryption failed:', error);
+        throw new Error('Failed to encrypt the message symmetrically. Please check your passphrase and try again.');
+    }
+}
+
 /**
  * Encrypts multiple files using a public key.
  * @param {Array<{uri: string, name: string}>} files - Array of file objects to encrypt.
@@ -110,6 +119,30 @@ export async function encryptFiles(files, publicKey, signingKey = null, askPassp
             outputFiles.push({uri: outputUri, name: outputFilename, mimeType: "application/pgp-encrypted"});
         } catch (error) {
             console.error(`Failed to encrypt file: ${file.name}`, error);
+            // We continue to the next file in case of an error.
+        }
+    }
+    return outputFiles;
+}
+
+export async function encryptSymmetricFiles(files, passphrase) {
+    const outputFiles = [];
+    for (const file of files) {
+        try {
+            const {uri: inputUri, name} = file;
+            const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const outputFilename = `${safeName}.pgp`;
+            const outputUri = `${FileSystem.cacheDirectory}${outputFilename}`;
+
+            const nativeInputPath = inputUri.replace('file://', '');
+            const nativeOutputPath = outputUri.replace('file://', '');
+
+            await OpenPGP.encryptSymmetricFile(nativeInputPath, nativeOutputPath, passphrase);
+
+            console.log(mimeLookup(nativeOutputPath));
+            outputFiles.push({uri: outputUri, name: outputFilename, mimeType: "application/pgp-encrypted"});
+        } catch (error) {
+            console.error(`Failed to encrypt file symmetrically: ${file.name}`, error);
             // We continue to the next file in case of an error.
         }
     }
