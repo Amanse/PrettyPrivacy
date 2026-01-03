@@ -150,6 +150,38 @@ export async function encryptSymmetricFiles(files, passphrase) {
 }
 
 /**
+ * Detects the encryption type (Symmetric or Asymmetric) from PGP binary data.
+ * @param {Uint8Array} data The raw binary data of the PGP message.
+ * @returns {'SYMMETRIC' | 'ASYMMETRIC' | 'UNKNOWN'}
+ */
+function detectEncryptionType(data) {
+    let i = 0;
+    while (i < data.length) {
+        const packetInfo = parsePacketHeader(data, i);
+        if (!packetInfo) {
+            return 'UNKNOWN';
+        }
+
+        // Tag 1: Public-Key Encrypted Session Key Packet
+        if (packetInfo.tag === 1) {
+            return 'ASYMMETRIC';
+        }
+
+        // Tag 3: Symmetric-Key Encrypted Session Key Packet
+        if (packetInfo.tag === 3) {
+            return 'SYMMETRIC';
+        }
+
+        const nextPacketIndex = i + packetInfo.headerLength + packetInfo.bodyLength;
+        if (nextPacketIndex <= i) {
+            return 'UNKNOWN';
+        }
+        i = nextPacketIndex;
+    }
+    return 'UNKNOWN';
+}
+
+/**
  * Decrypts multiple files. It will ask for a passphrase only once per required private key during the operation.
  * @param {Array<{uri: string, name: string}>} files - Array of file objects to decrypt.
  * @param {function} askPassphraseCallback - A callback function that is called when a passphrase is required.
@@ -158,6 +190,7 @@ export async function encryptSymmetricFiles(files, passphrase) {
 export async function decryptFiles(files, askPassphraseCallback) {
     const decryptedFiles = [];
     const passphrases = {}; // Cache for passphrases for the duration of this call
+    let symmetricPassphrase = null;
 
     for (const file of files) {
         const {inputUri, outputUri, outputFilename} = file;
@@ -193,46 +226,67 @@ export async function decryptFiles(files, askPassphraseCallback) {
                 throw new Error("Could not read PGP file header.");
             }
 
-            const keyId = findKeyId(binaryData);
-            if (!keyId) {
-                throw new Error('Could not find Key ID in the PGP message.');
-            }
-            const privateKeyEntry = keyManager.getPrivateKeyBySubKeyId(keyId);
-            if (!privateKeyEntry) {
-                throw new Error(`No private key found for Key ID: ${keyId}`);
-            }
+            const encryptionType = detectEncryptionType(binaryData);
 
-            let passphrase = "";
-            if (privateKeyEntry.isEncrypted) {
-                if (passphrases[keyId]) {
-                    passphrase = passphrases[keyId];
-                } else {
-                    let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
-                    if (passPhraseEntry) {
-                        passphrase = passPhraseEntry;
-                    } else {
-                        const result = await askPassphraseCallback();
-                        if (!result.passPhrase) {
-                            throw new Error('Passphrase is required to decrypt the private key.');
-                        }
-                        passphrase = result.passPhrase;
-                        if (result.useBiometrics) {
-                            await SecureStore.setItemAsync(`passphrase_${keyId}`, passphrase, {
-                                keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-                                requireAuthentication: true,
-                            });
-                        }
-                    }
-                    passphrases[keyId] = passphrase;
+            if (encryptionType === 'SYMMETRIC') {
+                if (!symmetricPassphrase) {
+                     const result = await askPassphraseCallback();
+                     if (!result.passPhrase) {
+                         throw new Error('Passphrase is required to decrypt the file.');
+                     }
+                     symmetricPassphrase = result.passPhrase;
                 }
+                const nativeInputPath = inputUri.replace('file://', '');
+                const nativeOutputPath = outputUri.replace('file://', '');
+                
+                await OpenPGP.decryptSymmetricFile(nativeInputPath, nativeOutputPath, symmetricPassphrase);
+                const mimeType = await getFileMimeType(outputUri, outputFilename);
+                decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified: false});
+
+            } else if (encryptionType === 'ASYMMETRIC') {
+                const keyId = findKeyId(binaryData);
+                if (!keyId) {
+                    throw new Error('Could not find Key ID in the PGP message.');
+                }
+                const privateKeyEntry = keyManager.getPrivateKeyBySubKeyId(keyId);
+                if (!privateKeyEntry) {
+                    throw new Error(`No private key found for Key ID: ${keyId}`);
+                }
+
+                let passphrase = "";
+                if (privateKeyEntry.isEncrypted) {
+                    if (passphrases[keyId]) {
+                        passphrase = passphrases[keyId];
+                    } else {
+                        let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
+                        if (passPhraseEntry) {
+                            passphrase = passPhraseEntry;
+                        } else {
+                            const result = await askPassphraseCallback();
+                            if (!result.passPhrase) {
+                                throw new Error('Passphrase is required to decrypt the private key.');
+                            }
+                            passphrase = result.passPhrase;
+                            if (result.useBiometrics) {
+                                await SecureStore.setItemAsync(`passphrase_${keyId}`, passphrase, {
+                                    keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                                    requireAuthentication: true,
+                                });
+                            }
+                        }
+                        passphrases[keyId] = passphrase;
+                    }
+                }
+
+                const nativeInputPath = inputUri.replace('file://', '');
+                const nativeOutputPath = outputUri.replace('file://', '');
+                const {isVerified} = await decryptVerifyFile(nativeInputPath, nativeOutputPath, passphrase, privateKeyEntry.keyString);
+                const mimeType = await getFileMimeType(outputUri, outputFilename);
+
+                decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified});
+            } else {
+                throw new Error("Unknown encryption type or invalid PGP data.");
             }
-
-            const nativeInputPath = inputUri.replace('file://', '');
-            const nativeOutputPath = outputUri.replace('file://', '');
-            const {isVerified} = await decryptVerifyFile(nativeInputPath, nativeOutputPath, passphrase, privateKeyEntry.keyString);
-            const mimeType = await getFileMimeType(outputUri, outputFilename);
-
-            decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified});
 
         } catch (e) {
             console.error(`Failed to decrypt ${inputUri}:`, e);
@@ -269,30 +323,44 @@ export async function decryptMessage(message, askPassphraseCallback) {
             return {msg: null, error: 'Invalid PGP message format.'}
         }
 
-        const keyId = findKeyId(binaryData);
-        if (!keyId) {
-            return {msg: null, error: 'Could not find Key ID in the PGP message.'}
-        }
+        const encryptionType = detectEncryptionType(binaryData);
 
-        const privateKeyEntry = keyManager.getPrivateKeyBySubKeyId(keyId);
-        if (!privateKeyEntry) {
-            return {msg: null, error: `No private key found for Key ID: ${keyId}`}
-        }
-
-        let msg = "";
-        let passPhrase = "";
-        if (privateKeyEntry.isEncrypted) {
-            let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
-            if (!passPhraseEntry) {
-                const result = await askPassphraseCallback();
-                passPhraseEntry = result.passPhrase;
+        if (encryptionType === 'SYMMETRIC') {
+             const result = await askPassphraseCallback();
+             if (!result.passPhrase) {
+                 return {msg: null, error: 'Passphrase is required.'};
+             }
+             const msg = await OpenPGP.decryptSymmetric(message, result.passPhrase);
+             return {msg: msg, isVerified: false, error: null};
+        } else if (encryptionType === 'ASYMMETRIC') {
+            const keyId = findKeyId(binaryData);
+            if (!keyId) {
+                return {msg: null, error: 'Could not find Key ID in the PGP message.'}
             }
-            passPhrase = passPhraseEntry;
+
+            const privateKeyEntry = keyManager.getPrivateKeyBySubKeyId(keyId);
+            if (!privateKeyEntry) {
+                return {msg: null, error: `No private key found for Key ID: ${keyId}`}
+            }
+
+            let msg = "";
+            let passPhrase = "";
+            if (privateKeyEntry.isEncrypted) {
+                let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
+                if (!passPhraseEntry) {
+                    const result = await askPassphraseCallback();
+                    passPhraseEntry = result.passPhrase;
+                }
+                passPhrase = passPhraseEntry;
+            }
+
+            msg = await decryptVerifyMessage(message, passPhrase, privateKeyEntry.keyString);
+
+            return {msg: msg.msg, isVerified: msg.isVerified, error: null}
+        } else {
+             return {msg: null, error: 'Unknown encryption type or invalid PGP data.'};
         }
 
-        msg = await decryptVerifyMessage(message, passPhrase, privateKeyEntry.keyString);
-
-        return {msg: msg.msg, isVerified: msg.isVerified, error: null}
     } catch (e) {
         console.error(e);
         throw e;
