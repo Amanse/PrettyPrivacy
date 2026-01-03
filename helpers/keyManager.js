@@ -158,7 +158,6 @@ export default class PGPKeyManager {
                 this.publicStorage.set(keyId, JSON.stringify(newKeyData));
             }
             if (signingKeyId === metaData.keyIDNumeric) {
-                console.log(keyData)
                 return keyData;
             }
         }

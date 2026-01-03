@@ -26,7 +26,6 @@ export default function GenerateKeyForm() {
 
     const handleGenerateKey = () => {
         // Handle key generation logic here
-        console.log('Generating key with:', {name, email, passphrase});
         keyManager.generateKeyPairAndSave(name, email, passphrase).then(res => {
             if (res === "success") {
                 setUpdateKey((c) => !c)

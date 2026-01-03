@@ -139,7 +139,6 @@ export async function encryptSymmetricFiles(files, passphrase) {
 
             await OpenPGP.encryptSymmetricFile(nativeInputPath, nativeOutputPath, passphrase);
 
-            console.log(mimeLookup(nativeOutputPath));
             outputFiles.push({uri: outputUri, name: outputFilename, mimeType: "application/pgp-encrypted"});
         } catch (error) {
             console.error(`Failed to encrypt file symmetrically: ${file.name}`, error);
@@ -230,15 +229,15 @@ export async function decryptFiles(files, askPassphraseCallback) {
 
             if (encryptionType === 'SYMMETRIC') {
                 if (!symmetricPassphrase) {
-                     const result = await askPassphraseCallback();
-                     if (!result.passPhrase) {
-                         throw new Error('Passphrase is required to decrypt the file.');
-                     }
-                     symmetricPassphrase = result.passPhrase;
+                    const result = await askPassphraseCallback();
+                    if (!result.passPhrase) {
+                        throw new Error('Passphrase is required to decrypt the file.');
+                    }
+                    symmetricPassphrase = result.passPhrase;
                 }
                 const nativeInputPath = inputUri.replace('file://', '');
                 const nativeOutputPath = outputUri.replace('file://', '');
-                
+
                 await OpenPGP.decryptSymmetricFile(nativeInputPath, nativeOutputPath, symmetricPassphrase);
                 const mimeType = await getFileMimeType(outputUri, outputFilename);
                 decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified: false});
@@ -326,12 +325,12 @@ export async function decryptMessage(message, askPassphraseCallback) {
         const encryptionType = detectEncryptionType(binaryData);
 
         if (encryptionType === 'SYMMETRIC') {
-             const result = await askPassphraseCallback();
-             if (!result.passPhrase) {
-                 return {msg: null, error: 'Passphrase is required.'};
-             }
-             const msg = await OpenPGP.decryptSymmetric(message, result.passPhrase);
-             return {msg: msg, isVerified: false, error: null};
+            const result = await askPassphraseCallback();
+            if (!result.passPhrase) {
+                return {msg: null, error: 'Passphrase is required.'};
+            }
+            const msg = await OpenPGP.decryptSymmetric(message, result.passPhrase);
+            return {msg: msg, isVerified: false, error: null};
         } else if (encryptionType === 'ASYMMETRIC') {
             const keyId = findKeyId(binaryData);
             if (!keyId) {
@@ -358,7 +357,7 @@ export async function decryptMessage(message, askPassphraseCallback) {
 
             return {msg: msg.msg, isVerified: msg.isVerified, error: null}
         } else {
-             return {msg: null, error: 'Unknown encryption type or invalid PGP data.'};
+            return {msg: null, error: 'Unknown encryption type or invalid PGP data.'};
         }
 
     } catch (e) {
