@@ -172,6 +172,8 @@ export default function EncryptFiles() {
                     value={symmetricPassphrase}
                     onChangeText={setSymmetricPassphrase}
                     secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
                     style={{marginTop: 16}}
                 />
             )}

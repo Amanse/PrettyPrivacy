@@ -18,7 +18,10 @@ export async function encryptMessage(message, publicKey, signingKey = null, askP
             }
             let passphrase = "";
             if (privateKeyEntry.isEncrypted) {
-                let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${privateKeyEntry.subKeyId}`);
+                let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${privateKeyEntry.subKeyId}`, {
+                    keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
+                    requireAuthentication: true
+                });
                 if (passPhraseEntry) {
                     passphrase = passPhraseEntry;
                 } else {
@@ -29,7 +32,7 @@ export async function encryptMessage(message, publicKey, signingKey = null, askP
                     passphrase = result.passPhrase;
                     if (result.useBiometrics) {
                         await SecureStore.setItemAsync(`passphrase_${privateKeyEntry.id}`, passphrase, {
-                            keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                            keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
                             requireAuthentication: true,
                         });
                     }
@@ -90,7 +93,10 @@ export async function encryptFiles(files, publicKey, signingKey = null, askPassp
                 privateKey = privateKeyEntry.keyString;
 
                 if (privateKeyEntry.isEncrypted) {
-                    let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${privateKeyEntry.subKeyId}`);
+                    let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${privateKeyEntry.subKeyId}`, {
+                        keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
+                        requireAuthentication: true
+                    });
                     if (passPhraseEntry) {
                         passphrase = passPhraseEntry;
                     } else {
@@ -101,7 +107,7 @@ export async function encryptFiles(files, publicKey, signingKey = null, askPassp
                         passphrase = result.passPhrase;
                         if (result.useBiometrics) {
                             await SecureStore.setItemAsync(`passphrase_${privateKeyEntry.id}`, passphrase, {
-                                keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                                keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
                                 requireAuthentication: true,
                             });
                         }
@@ -257,7 +263,10 @@ export async function decryptFiles(files, askPassphraseCallback) {
                     if (passphrases[keyId]) {
                         passphrase = passphrases[keyId];
                     } else {
-                        let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
+                        let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`, {
+                            keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
+                            requireAuthentication: true
+                        });
                         if (passPhraseEntry) {
                             passphrase = passPhraseEntry;
                         } else {
@@ -268,7 +277,7 @@ export async function decryptFiles(files, askPassphraseCallback) {
                             passphrase = result.passPhrase;
                             if (result.useBiometrics) {
                                 await SecureStore.setItemAsync(`passphrase_${keyId}`, passphrase, {
-                                    keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+                                    keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
                                     requireAuthentication: true,
                                 });
                             }
@@ -277,9 +286,13 @@ export async function decryptFiles(files, askPassphraseCallback) {
                     }
                 }
 
+                console.debug(passphrase);
+                console.debug(privateKeyEntry);
+
                 const nativeInputPath = inputUri.replace('file://', '');
                 const nativeOutputPath = outputUri.replace('file://', '');
                 const {isVerified} = await decryptVerifyFile(nativeInputPath, nativeOutputPath, passphrase, privateKeyEntry.keyString);
+                console.log(isVerified);
                 const mimeType = await getFileMimeType(outputUri, outputFilename);
 
                 decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified});
@@ -345,7 +358,10 @@ export async function decryptMessage(message, askPassphraseCallback) {
             let msg = "";
             let passPhrase = "";
             if (privateKeyEntry.isEncrypted) {
-                let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`);
+                let passPhraseEntry = await SecureStore.getItemAsync(`passphrase_${keyId}`, {
+                    keychainAccessible: SecureStore.WHEN_PASSCODE_SET_THIS_DEVICE_ONLY,
+                    requireAuthentication: true
+                });
                 if (!passPhraseEntry) {
                     const result = await askPassphraseCallback();
                     passPhraseEntry = result.passPhrase;

@@ -154,6 +154,8 @@ export default function EncryptText() {
                 value={symmetricPassphrase}
                 onChangeText={setSymmetricPassphrase}
                 secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
                 style={{marginTop: 16}}
             />
         )}

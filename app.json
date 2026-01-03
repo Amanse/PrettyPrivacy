@@ -60,6 +60,13 @@
         {
           "appleTeamId": "236N762267"
         }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow PrettyPrivacy to access your Face ID biometric data."
+        }
       ]
     ],
     "experiments": {

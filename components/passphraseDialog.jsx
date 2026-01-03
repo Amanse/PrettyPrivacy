@@ -10,6 +10,8 @@ const PassphraseDialog = ({ visible, onDismiss, onSubmit, passPhrase, setPassPhr
                     <TextInput
                         secureTextEntry={true}
                         autoComplete="current-password"
+                        autoCapitalize="none"
+                        autoCorrect={false}
                         value={passPhrase}
                         onChangeText={setPassPhrase}
                         multiline={false}
