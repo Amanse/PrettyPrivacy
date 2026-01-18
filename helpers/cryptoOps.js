@@ -286,13 +286,9 @@ export async function decryptFiles(files, askPassphraseCallback) {
                     }
                 }
 
-                console.debug(passphrase);
-                console.debug(privateKeyEntry);
-
                 const nativeInputPath = inputUri.replace('file://', '');
                 const nativeOutputPath = outputUri.replace('file://', '');
                 const {isVerified} = await decryptVerifyFile(nativeInputPath, nativeOutputPath, passphrase, privateKeyEntry.keyString);
-                console.log(isVerified);
                 const mimeType = await getFileMimeType(outputUri, outputFilename);
 
                 decryptedFiles.push({uri: outputUri, name: outputFilename, mimeType, isVerified});
