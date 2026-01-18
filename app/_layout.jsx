@@ -18,7 +18,7 @@ function Layout() {
     const [updateKey, setUpdateKey] = React.useState(true);
     const router = useRouter();
 
-    const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext();
+    const {hasShareIntent, shareIntent, resetShareIntent} = useShareIntentContext();
 
     React.useEffect(() => {
         const setup = async () => {
