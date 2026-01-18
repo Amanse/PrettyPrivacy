@@ -5,7 +5,7 @@ import {Button, List, Text, useTheme, Portal, Snackbar} from 'react-native-paper
 import {decryptFiles} from "../helpers/cryptoOps";
 import LoadingDialog from "../components/loadingDialog";
 import PassphraseDialog from "../components/passphraseDialog";
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 export default function DecryptImportedFile() {
     const params = useLocalSearchParams();
@@ -55,7 +55,7 @@ export default function DecryptImportedFile() {
 
         try {
             setIsLoading(true);
-            
+
             // expo-share-intent might provide a file path that needs 'file://' prefix if not present
             let inputUri = fileUri;
             if (!inputUri.startsWith('file://')) {
@@ -64,13 +64,13 @@ export default function DecryptImportedFile() {
 
             const safeName = fileName.replace(/\.(pgp|gpg|asc)$/i, '');
             const destination = `${FileSystem.cacheDirectory}${safeName}`;
-            
+
             const fileObj = {
                 inputUri: inputUri,
                 outputUri: destination,
                 outputFilename: safeName,
                 // fallback if helper expects these
-                uri: inputUri, 
+                uri: inputUri,
                 name: fileName
             };
 
@@ -93,14 +93,15 @@ export default function DecryptImportedFile() {
 
     return (
         <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-            <Stack.Screen options={{ title: "Decrypt Imported File" }} />
-            
+            <Stack.Screen options={{title: "Decrypt Imported File"}}/>
+
             <View style={styles.content}>
-                <List.Icon icon="file-import" style={{alignSelf: 'center', marginBottom: 20}} />
-                <Text variant="headlineSmall" style={{textAlign: 'center', marginBottom: 20, color: theme.colors.onBackground}}>
+                <List.Icon icon="file-import" style={{alignSelf: 'center', marginBottom: 20}}/>
+                <Text variant="headlineSmall"
+                      style={{textAlign: 'center', marginBottom: 20, color: theme.colors.onBackground}}>
                     Imported File
                 </Text>
-                
+
                 <List.Item
                     title={fileName || "Unknown File"}
                     description="Ready to decrypt"
@@ -108,9 +109,9 @@ export default function DecryptImportedFile() {
                     style={styles.fileItem}
                 />
 
-                <Button 
-                    mode="contained" 
-                    onPress={handleDecrypt} 
+                <Button
+                    mode="contained"
+                    onPress={handleDecrypt}
                     style={styles.button}
                     icon="lock-open"
                 >
