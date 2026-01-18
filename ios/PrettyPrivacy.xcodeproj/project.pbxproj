@@ -7,29 +7,64 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10292D2A139A477AB5A15648 /* ShareExtensionPreprocessor.js in Resources */ = {isa = PBXBuildFile; fileRef = 8CE8AB7D104A44E9BAE351F0 /* ShareExtensionPreprocessor.js */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		285314B9D1BE4356A8CFC007 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0F6A3B9BB6E44C0283D3F6A4 /* MainInterface.storyboard */; };
+		3943670A2EE431A19CFC468A /* libPods-PrettyPrivacy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD9640D59C07F79C7528D9BB /* libPods-PrettyPrivacy.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4D3AEFC79E86C2C30C462851 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EB70815D62204E256071E9 /* ExpoModulesProvider.swift */; };
+		4006E78408DB536262225E01 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EE8C34AACAF78111EC8DE1 /* ExpoModulesProvider.swift */; };
+		87220177707C4B2888A5B3A1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 518940BFCC264F2CBDCC08AD /* PrivacyInfo.xcprivacy */; };
+		AC94076E43D846C387CAE893 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B533FB61466243BF93AEB3CC /* ShareViewController.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		D373DBD7C50FCF712CFED605 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7FC45945508A9707A1CB7649 /* PrivacyInfo.xcprivacy */; };
-		ED1AFC4F1835F0F3CC775619 /* libPods-PrettyPrivacy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0694618AC30E198F4BBE2073 /* libPods-PrettyPrivacy.a */; };
+		D444F26AA5E04548B791C9D5 /* ShareExtension.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 6811DE7D9EBF4CA9BB08C425 /* ShareExtension.appex */; };
+		EA097C55601854AAC41DA274 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 518940BFCC264F2CBDCC08AD /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		7D14EFC3295E476CBD284E07 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 01D5CEB8091A452BA3E5EB9F;
+			remoteInfo = ShareExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8BAFA050EB2E4A1487399765 /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D444F26AA5E04548B791C9D5 /* ShareExtension.appex in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		0694618AC30E198F4BBE2073 /* libPods-PrettyPrivacy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PrettyPrivacy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0F6A3B9BB6E44C0283D3F6A4 /* MainInterface.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = MainInterface.storyboard; path = MainInterface.storyboard; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* PrettyPrivacy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrettyPrivacy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PrettyPrivacy/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PrettyPrivacy/Info.plist; sourceTree = "<group>"; };
-		52EB70815D62204E256071E9 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-PrettyPrivacy/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		7FC45945508A9707A1CB7649 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = PrettyPrivacy/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		20EE8C34AACAF78111EC8DE1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-PrettyPrivacy/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		518940BFCC264F2CBDCC08AD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PrivacyInfo.xcprivacy; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		63D7BC40A60A7CE2EAC9CD3D /* Pods-PrettyPrivacy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrettyPrivacy.release.xcconfig"; path = "Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy.release.xcconfig"; sourceTree = "<group>"; };
+		6811DE7D9EBF4CA9BB08C425 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = ShareExtension.appex; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6FA20344BFFD45A884C40674 /* ShareExtension.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ShareExtension.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
+		8CE8AB7D104A44E9BAE351F0 /* ShareExtensionPreprocessor.js */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ShareExtensionPreprocessor.js; path = ShareExtensionPreprocessor.js; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = PrettyPrivacy/SplashScreen.storyboard; sourceTree = "<group>"; };
+		AD9640D59C07F79C7528D9BB /* libPods-PrettyPrivacy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PrettyPrivacy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B36082F59EB34186A713EACF /* ShareExtension-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "ShareExtension-Info.plist"; path = "ShareExtension-Info.plist"; sourceTree = "<group>"; };
+		B533FB61466243BF93AEB3CC /* ShareViewController.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		CBC8169B56326EA5A8859ECB /* Pods-PrettyPrivacy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrettyPrivacy.release.xcconfig"; path = "Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy.release.xcconfig"; sourceTree = "<group>"; };
+		E68D96BA6352454EA65E8BB8 /* Pods-PrettyPrivacy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrettyPrivacy.debug.xcconfig"; path = "Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = PrettyPrivacy/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* PrettyPrivacy-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PrettyPrivacy-Bridging-Header.h"; path = "PrettyPrivacy/PrettyPrivacy-Bridging-Header.h"; sourceTree = "<group>"; };
-		F11B52B7AFD4672F2E480091 /* Pods-PrettyPrivacy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrettyPrivacy.debug.xcconfig"; path = "Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +72,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ED1AFC4F1835F0F3CC775619 /* libPods-PrettyPrivacy.a in Frameworks */,
+				3943670A2EE431A19CFC468A /* libPods-PrettyPrivacy.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BDEAD4C853B249D3BBCFDF7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +95,6 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				7FC45945508A9707A1CB7649 /* PrivacyInfo.xcprivacy */,
 			);
 			name = PrettyPrivacy;
 			sourceTree = "<group>";
@@ -62,9 +103,25 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				0694618AC30E198F4BBE2073 /* libPods-PrettyPrivacy.a */,
+				AD9640D59C07F79C7528D9BB /* libPods-PrettyPrivacy.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2EDE7878C69FF118805B82A8 /* PrettyPrivacy */ = {
+			isa = PBXGroup;
+			children = (
+				20EE8C34AACAF78111EC8DE1 /* ExpoModulesProvider.swift */,
+			);
+			name = PrettyPrivacy;
+			sourceTree = "<group>";
+		};
+		6DC3B91F9A0AB83929768EE7 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				2EDE7878C69FF118805B82A8 /* PrettyPrivacy */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -81,8 +138,9 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				BAA17E86012E3436023C70DE /* Pods */,
-				A97AEA839728D62CFC1CDCED /* ExpoModulesProviders */,
+				B021D8152DC249D68E55BF87 /* ShareExtension */,
+				94496E7CF65070CE65A7E993 /* Pods */,
+				6DC3B91F9A0AB83929768EE7 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -93,33 +151,33 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* PrettyPrivacy.app */,
+				6811DE7D9EBF4CA9BB08C425 /* ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A2759FAE0F936FC7C02CA586 /* PrettyPrivacy */ = {
+		94496E7CF65070CE65A7E993 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				52EB70815D62204E256071E9 /* ExpoModulesProvider.swift */,
+				E68D96BA6352454EA65E8BB8 /* Pods-PrettyPrivacy.debug.xcconfig */,
+				63D7BC40A60A7CE2EAC9CD3D /* Pods-PrettyPrivacy.release.xcconfig */,
 			);
-			name = PrettyPrivacy;
-			sourceTree = "<group>";
-		};
-		A97AEA839728D62CFC1CDCED /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				A2759FAE0F936FC7C02CA586 /* PrettyPrivacy */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		BAA17E86012E3436023C70DE /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				F11B52B7AFD4672F2E480091 /* Pods-PrettyPrivacy.debug.xcconfig */,
-				CBC8169B56326EA5A8859ECB /* Pods-PrettyPrivacy.release.xcconfig */,
-			);
+			name = Pods;
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		B021D8152DC249D68E55BF87 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				B533FB61466243BF93AEB3CC /* ShareViewController.swift */,
+				0F6A3B9BB6E44C0283D3F6A4 /* MainInterface.storyboard */,
+				8CE8AB7D104A44E9BAE351F0 /* ShareExtensionPreprocessor.js */,
+				518940BFCC264F2CBDCC08AD /* PrivacyInfo.xcprivacy */,
+				B36082F59EB34186A713EACF /* ShareExtension-Info.plist */,
+				6FA20344BFFD45A884C40674 /* ShareExtension.entitlements */,
+			);
+			name = ShareExtension;
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -134,22 +192,41 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		01D5CEB8091A452BA3E5EB9F /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41157F8C680245B58F5C3B3F /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				686CB24E2D314E49B2CBA25E /* Sources */,
+				77083DC9057946018B19FD3B /* Resources */,
+				BDEAD4C853B249D3BBCFDF7C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			productName = ShareExtension;
+			productReference = 6811DE7D9EBF4CA9BB08C425 /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		13B07F861A680F5B00A75B9A /* PrettyPrivacy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "PrettyPrivacy" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				D8244EDC633FEA7E5FB5929A /* [Expo] Configure project */,
+				78049FC2977C3CD95220EF4A /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				E36B86A897AC5B80B47B3C00 /* [CP] Embed Pods Frameworks */,
+				8BAFA050EB2E4A1487399765 /* Copy Files */,
+				6EFF1E1DFB36D5CDB08D08D5 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6600F98810A549FC801044DD /* PBXTargetDependency */,
 			);
 			name = PrettyPrivacy;
 			productName = PrettyPrivacy;
@@ -183,6 +260,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* PrettyPrivacy */,
+				01D5CEB8091A452BA3E5EB9F /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -195,7 +273,17 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				D373DBD7C50FCF712CFED605 /* PrivacyInfo.xcprivacy in Resources */,
+				EA097C55601854AAC41DA274 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		77083DC9057946018B19FD3B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				285314B9D1BE4356A8CFC007 /* MainInterface.storyboard in Resources */,
+				10292D2A139A477AB5A15648 /* ShareExtensionPreprocessor.js in Resources */,
+				87220177707C4B2888A5B3A1 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,6 +297,8 @@
 			files = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
 			);
 			name = "Bundle React Native code and images";
 			outputPaths = (
@@ -239,6 +329,52 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		6EFF1E1DFB36D5CDB08D08D5 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		78049FC2977C3CD95220EF4A /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/PrettyPrivacy/PrettyPrivacy.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-PrettyPrivacy/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-PrettyPrivacy/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-PrettyPrivacy/expo-configure-project.sh\"\n";
+		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -249,63 +385,20 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly/RCT-Folly_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/boost/boost_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/glog/glog_privacy.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoConstants_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoFileSystem_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RCT-Folly_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/boost_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/glog_privacy.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D8244EDC633FEA7E5FB5929A /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-PrettyPrivacy/expo-configure-project.sh\"\n";
-		};
-		E36B86A897AC5B80B47B3C00 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PrettyPrivacy/Pods-PrettyPrivacy-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -316,22 +409,37 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				4D3AEFC79E86C2C30C462851 /* ExpoModulesProvider.swift in Sources */,
+				4006E78408DB536262225E01 /* ExpoModulesProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		686CB24E2D314E49B2CBA25E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC94076E43D846C387CAE893 /* ShareViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		6600F98810A549FC801044DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 01D5CEB8091A452BA3E5EB9F /* ShareExtension */;
+			targetProxy = 7D14EFC3295E476CBD284E07 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F11B52B7AFD4672F2E480091 /* Pods-PrettyPrivacy.debug.xcconfig */;
+			baseConfigurationReference = E68D96BA6352454EA65E8BB8 /* Pods-PrettyPrivacy.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PrettyPrivacy/PrettyPrivacy.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 26786CHJLY;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -362,15 +470,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CBC8169B56326EA5A8859ECB /* Pods-PrettyPrivacy.release.xcconfig */;
+			baseConfigurationReference = 63D7BC40A60A7CE2EAC9CD3D /* Pods-PrettyPrivacy.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PrettyPrivacy/PrettyPrivacy.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 26786CHJLY;
 				INFOPLIST_FILE = PrettyPrivacy/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -386,11 +491,35 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sanuki.PrettyPrivacy;
 				PRODUCT_NAME = PrettyPrivacy;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "PrettyPrivacy/PrettyPrivacy-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		3B184E2433954F3CA3476C63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ShareExtension/ShareExtension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sanuki.PrettyPrivacy.share-extension";
+				PRODUCT_NAME = ShareExtension;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -449,10 +578,10 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				USE_HERMES = true;
 			};
 			name = Debug;
@@ -504,13 +633,42 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
+		};
+		B7A509F1281E4FCFAA340C77 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ShareExtension/ShareExtension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sanuki.PrettyPrivacy.share-extension";
+				PRODUCT_NAME = ShareExtension;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
@@ -520,6 +678,15 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41157F8C680245B58F5C3B3F /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B7A509F1281E4FCFAA340C77 /* Debug */,
+				3B184E2433954F3CA3476C63 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

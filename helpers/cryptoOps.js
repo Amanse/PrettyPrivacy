@@ -1,7 +1,7 @@
 import OpenPGP from "react-native-fast-openpgp";
 import PGPKeyManager from "./keyManager";
 import * as SecureStore from "expo-secure-store";
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import {fileTypeFromBuffer} from 'file-type/core';
 import {toByteArray} from 'base64-js';
 import {mimeLookup} from "./general";

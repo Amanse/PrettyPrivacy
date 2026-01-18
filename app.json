@@ -67,6 +67,18 @@
           "configureAndroidBackup": true,
           "faceIDPermission": "Allow PrettyPrivacy to access your Face ID biometric data."
         }
+      ],
+      [
+        "expo-share-intent",
+        {
+          "iosActivationRules": {
+            "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
+            "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
+            "NSExtensionActivationSupportsImageWithMaxCount": 1,
+            "NSExtensionActivationSupportsMovieWithMaxCount": 1,
+            "NSExtensionActivationSupportsFileWithMaxCount": 1
+          }
+        }
       ]
     ],
     "experiments": {
