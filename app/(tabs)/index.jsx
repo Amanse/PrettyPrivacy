@@ -10,10 +10,10 @@ import {
     Portal,
     Snackbar,
 } from 'react-native-paper';
-import {decryptMessage, decryptFiles} from "../helpers/cryptoOps";
-import {pickFileAndGetData} from "../helpers/general";
-import LoadingDialog from "../components/loadingDialog";
-import PassphraseDialog from "../components/passphraseDialog";
+import {decryptMessage, decryptFiles} from "../../helpers/cryptoOps";
+import {pickFileAndGetData} from "../../helpers/general";
+import LoadingDialog from "../../components/loadingDialog";
+import PassphraseDialog from "../../components/passphraseDialog";
 
 const EncryptDecryptScreen = () => {
     const theme = useTheme();

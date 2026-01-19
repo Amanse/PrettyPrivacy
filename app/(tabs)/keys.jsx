@@ -2,10 +2,10 @@ import React, {useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {FAB, List, Text, useTheme, Divider} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useData} from "../helpers/contextProvider";
-import PGPKeyManager from "../helpers/keyManager";
+import {useData} from "../../helpers/contextProvider";
+import PGPKeyManager from "../../helpers/keyManager";
 import {useRouter} from "expo-router";
-import KeyListItem from "../components/keyListItem"
+import KeyListItem from "../../components/keyListItem"
 import * as Clipboard from 'expo-clipboard';
 
 const KeysScreen = () => {

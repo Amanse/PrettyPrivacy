@@ -1,9 +1,8 @@
-import {useRouter} from 'expo-router';
-import {MD3DarkTheme, Provider as PaperProvider, useTheme} from 'react-native-paper';
+import {Stack, useRouter} from 'expo-router';
+import {MD3DarkTheme, Provider as PaperProvider} from 'react-native-paper';
 import React from "react";
-import {NativeTabs, Icon, Label} from 'expo-router/unstable-native-tabs';
 import {initializeSecureStorage} from "../helpers/storage";
-import {Text, DynamicColorIOS} from "react-native";
+import {Text} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
 import DataContext from '../helpers/contextProvider';
 import {ShareIntentProvider, useShareIntentContext} from "expo-share-intent";
@@ -11,7 +10,6 @@ import {ShareIntentProvider, useShareIntentContext} from "expo-share-intent";
 const theme = {...MD3DarkTheme};
 
 function Layout() {
-    const theme = useTheme(); // Hook to get theme colors
     const [isStorageInitialized, setIsStorageInitialized] = React.useState(false);
     const [keys, setKeys] = React.useState([]);
     const keyManager = React.useMemo(() => new PGPKeyManager(), []);
@@ -60,21 +58,9 @@ function Layout() {
 
     return isStorageInitialized ? (
         <DataContext.Provider value={{keys, setUpdateKey}}>
-            <NativeTabs
-                labelStyle={{
-                    color: DynamicColorIOS({dark: 'white', light: 'black'}),
-                }}
-                tintColor={DynamicColorIOS({dark: 'white', light: 'black'})}
-            >
-                <NativeTabs.Trigger name="index">
-                    <Label>Encrypt/Decrypt</Label>
-                    <Icon sf="lock.fill"/>
-                </NativeTabs.Trigger>
-                <NativeTabs.Trigger name="keys">
-                    <Label>Keys</Label>
-                    <Icon sf="key.fill"/>
-                </NativeTabs.Trigger>
-            </NativeTabs>
+            <Stack>
+                <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+            </Stack>
         </DataContext.Provider>
     ) : (<Text>Loading</Text>);
 }
