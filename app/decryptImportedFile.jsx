@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
 import {View, StyleSheet} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useLocalSearchParams, useRouter, Stack} from 'expo-router';
 import {Button, List, Text, useTheme, Portal, Snackbar} from 'react-native-paper';
 import {decryptFiles} from "../helpers/cryptoOps";
@@ -92,7 +93,7 @@ export default function DecryptImportedFile() {
     };
 
     return (
-        <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, {backgroundColor: theme.colors.background}]}>
             <Stack.Screen options={{title: "Decrypt Imported File"}}/>
 
             <View style={styles.content}>
@@ -138,7 +139,7 @@ export default function DecryptImportedFile() {
                 </Snackbar>
             </Portal>
             <LoadingDialog onDismiss={hideLoading} isLoading={isLoading} color={theme.colors.primary}/>
-        </View>
+        </SafeAreaView>
     );
 }
 

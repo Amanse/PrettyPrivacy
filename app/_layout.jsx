@@ -58,7 +58,14 @@ function Layout() {
 
     return isStorageInitialized ? (
         <DataContext.Provider value={{keys, setUpdateKey}}>
-            <Stack>
+            <Stack
+                screenOptions={{
+                    headerStyle: {
+                        backgroundColor: theme.colors.background,
+                    },
+                    headerTintColor: theme.colors.onBackground,
+                }}
+            >
                 <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
             </Stack>
         </DataContext.Provider>

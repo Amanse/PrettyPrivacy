@@ -6,6 +6,7 @@
 // });
 
 import {View, Text, FlatList, StyleSheet} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useLocalSearchParams, Stack} from 'expo-router';
 import {Appbar, List, useTheme} from "react-native-paper";
 import fileListItem from "../components/fileListItem";
@@ -72,7 +73,7 @@ export default function PreviewScreen() {
     }
 
     return (
-        <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, {backgroundColor: theme.colors.background}]}>
             <Stack.Screen options={{
                 header: (props) => (
                     <Appbar.Header>
@@ -93,7 +94,7 @@ export default function PreviewScreen() {
                     </View>
                 }
             />
-        </View>
+        </SafeAreaView>
     );
 }
 

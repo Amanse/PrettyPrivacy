@@ -1,7 +1,8 @@
 import {Dropdown} from "react-native-paper-dropdown"
 import {ScrollView, StyleSheet, View} from "react-native";
+import {SafeAreaView} from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
-import {useTheme, TextInput, Button, Text, Checkbox, Menu, IconButton} from "react-native-paper";
+import {useTheme, TextInput, Button, Text, Checkbox, IconButton} from "react-native-paper";
 import React, {useCallback} from "react";
 import {useData} from "../../helpers/contextProvider";
 import {encryptMessage, encryptSymmetricMessage} from "../../helpers/cryptoOps";
@@ -9,6 +10,7 @@ import PGPKeyManager from "../../helpers/keyManager";
 import LoadingDialog from "../../components/loadingDialog";
 import {useFocusEffect, useNavigation} from "expo-router";
 import PassphraseDialog from "../../components/passphraseDialog";
+import * as DropdownMenu from 'zeego/dropdown-menu';
 
 export default function EncryptText() {
     const [publicKey, setPublicKey] = React.useState("");
@@ -29,27 +31,25 @@ export default function EncryptText() {
 
     const [isSymmetric, setIsSymmetric] = React.useState(false);
     const [symmetricPassphrase, setSymmetricPassphrase] = React.useState("");
-    const [menuVisible, setMenuVisible] = React.useState(false);
-
-    const openMenu = () => setMenuVisible(true);
-    const closeMenu = () => setMenuVisible(false);
 
     React.useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Menu
-                    visible={menuVisible}
-                    onDismiss={closeMenu}
-                    anchor={<IconButton icon="dots-vertical" onPress={openMenu} />}
-                >
-                    <Menu.Item onPress={() => {
-                        setIsSymmetric(!isSymmetric);
-                        closeMenu();
-                    }} title={isSymmetric ? "Disable Symmetric" : "Enable Symmetric"} />
-                </Menu>
+                <DropdownMenu.Root>
+                    <DropdownMenu.Trigger>
+                        <IconButton icon="dots-vertical"/>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content>
+                        <DropdownMenu.Item key="symmetric" onSelect={() => setIsSymmetric(!isSymmetric)}>
+                            <DropdownMenu.ItemTitle>
+                                {isSymmetric ? "Disable Symmetric" : "Enable Symmetric"}
+                            </DropdownMenu.ItemTitle>
+                        </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                </DropdownMenu.Root>
             ),
         });
-    }, [navigation, menuVisible, isSymmetric]);
+    }, [navigation, isSymmetric]);
 
     const hideLoading = () => setLoading(false);
     const hidePassphrase = () => {
@@ -121,7 +121,7 @@ export default function EncryptText() {
         }
     }
 
-    return <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
+    return <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, {backgroundColor: theme.colors.background}]}>
         {!isSymmetric && (
             <>
                 <Dropdown
@@ -191,7 +191,7 @@ export default function EncryptText() {
             setChecked={setChecked}
             submitLabel="Sign"
         />
-    </View>;
+    </SafeAreaView>;
 }
 
 const styles = StyleSheet.create({

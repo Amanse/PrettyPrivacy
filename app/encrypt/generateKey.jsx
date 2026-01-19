@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {View} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {Button, TextInput, HelperText, useTheme} from 'react-native-paper';
 import PGPKeyManager from "../../helpers/keyManager";
 import {useFocusEffect, useRouter} from "expo-router";
@@ -37,7 +38,7 @@ export default function GenerateKeyForm() {
     const theme = useTheme();
 
     return (
-        <View style={{padding: 16, backgroundColor: theme.colors.background, height: '100%'}}>
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={{padding: 16, backgroundColor: theme.colors.background, height: '100%'}}>
             <TextInput
                 label="Name"
                 value={name}
@@ -68,6 +69,6 @@ export default function GenerateKeyForm() {
             <Button mode="contained" onPress={handleGenerateKey}>
                 Generate Key
             </Button>
-        </View>
+        </SafeAreaView>
     );
 }
