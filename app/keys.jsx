@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {FAB, List, Text, useTheme, Divider} from 'react-native-paper';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useData} from "../helpers/contextProvider";
 import PGPKeyManager from "../helpers/keyManager";
 import {useRouter} from "expo-router";
@@ -22,9 +23,10 @@ const KeysScreen = () => {
     }, [keyManager])
 
     return (
-        <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-            {/* Display a list of existing keys */}
-            {keys.length > 0 ? (
+        <SafeAreaView style={[styles.container, {backgroundColor: theme.colors.background}]}>
+            <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
+                {/* Display a list of existing keys */}
+                {keys.length > 0 ? (
                 <List.Section>
                     {keys.map((key, index) => (
                         <React.Fragment key={key.id}>
@@ -83,6 +85,7 @@ const KeysScreen = () => {
                 onStateChange={onStateChange}
             />
         </View>
+        </SafeAreaView>
     );
 };
 

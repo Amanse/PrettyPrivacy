@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {useFocusEffect, useRouter} from "expo-router"
 import * as Clipboard from "expo-clipboard"
 import {ScrollView} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {
     List,
     Divider,
@@ -107,8 +108,9 @@ const EncryptDecryptScreen = () => {
     };
 
     return (
-        <ScrollView style={{flex: 1, backgroundColor: theme.colors.background}}>
-            <List.Section>
+        <SafeAreaView style={{flex: 1, backgroundColor: theme.colors.background}}>
+            <ScrollView style={{flex: 1, backgroundColor: theme.colors.background}}>
+                <List.Section>
                 <List.Subheader>Encrypt</List.Subheader>
                 <List.Item
                     title="Encrypt files"
@@ -162,6 +164,7 @@ const EncryptDecryptScreen = () => {
             </Portal>
             <LoadingDialog onDismiss={hideLoading} isLoading={isLoading} color={theme.colors.primary}/>
         </ScrollView>
+        </SafeAreaView>
     );
 };
 

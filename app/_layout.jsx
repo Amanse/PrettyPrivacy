@@ -1,9 +1,9 @@
-import {Tabs, useRouter} from 'expo-router';
+import {useRouter} from 'expo-router';
 import {MD3DarkTheme, Provider as PaperProvider, useTheme} from 'react-native-paper';
 import React from "react";
-import {FontAwesome5} from "@expo/vector-icons";
+import {NativeTabs, Icon, Label} from 'expo-router/unstable-native-tabs';
 import {initializeSecureStorage} from "../helpers/storage";
-import {Text} from "react-native";
+import {Text, DynamicColorIOS} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
 import DataContext from '../helpers/contextProvider';
 import {ShareIntentProvider, useShareIntentContext} from "expo-share-intent";
@@ -60,81 +60,21 @@ function Layout() {
 
     return isStorageInitialized ? (
         <DataContext.Provider value={{keys, setUpdateKey}}>
-            <Tabs
-                screenOptions={{
-                    // Style the header bar
-                    headerStyle: {
-                        backgroundColor: theme.colors.surface,
-                    },
-                    headerTintColor: theme.colors.onSurface,
-                    // Style the tab bar
-                    tabBarStyle: {
-                        backgroundColor: theme.colors.surface,
-                    },
-                    tabBarActiveTintColor: theme.colors.primary,
+            <NativeTabs
+                labelStyle={{
+                    color: DynamicColorIOS({dark: 'white', light: 'black'}),
                 }}
+                tintColor={DynamicColorIOS({dark: 'white', light: 'black'})}
             >
-                <Tabs.Screen
-                    name="index"
-                    options={{
-                        title: 'Encrypt/Decrypt',
-                        tabBarIcon: ({color}) => (
-                            <FontAwesome5 name="lock" size={24} color={color}/>
-                        ),
-                        // ... your other options
-                    }}
-                />
-                <Tabs.Screen
-                    name="keys"
-                    options={{
-                        title: 'Keys',
-                        tabBarIcon: ({color}) => (
-                            <FontAwesome5 name="key" size={24} color={color}/>
-                        ),
-                    }}
-                />
-                <Tabs.Screen
-                    name="encrypt/encryptText"
-                    options={{
-                        href: null,
-                        title: 'Encrypt Text'
-                    }}
-                />
-                <Tabs.Screen
-                    name="encrypt/generateKey"
-                    options={{
-                        href: null,
-                        title: 'Generate new key'
-                    }}
-                />
-                <Tabs.Screen
-                    name="preview"
-                    options={{
-                        href: null,
-                    }}
-                />
-                <Tabs.Screen
-                    name="encrypt/encryptFiles"
-                    options={{
-                        href: null,
-                        title: "Encrypt files"
-                    }}
-                />
-                <Tabs.Screen
-                    name="textPreview"
-                    options={{
-                        href: null,
-                        title: "Decrypted Text"
-                    }}
-                />
-                <Tabs.Screen
-                    name="decryptImportedFile"
-                    options={{
-                        href: null,
-                        title: "Decrypt File"
-                    }}
-                />
-            </Tabs>
+                <NativeTabs.Trigger name="index">
+                    <Label>Encrypt/Decrypt</Label>
+                    <Icon sf="lock.fill"/>
+                </NativeTabs.Trigger>
+                <NativeTabs.Trigger name="keys">
+                    <Label>Keys</Label>
+                    <Icon sf="key.fill"/>
+                </NativeTabs.Trigger>
+            </NativeTabs>
         </DataContext.Provider>
     ) : (<Text>Loading</Text>);
 }
