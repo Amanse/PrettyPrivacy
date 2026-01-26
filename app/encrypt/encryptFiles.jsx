@@ -1,7 +1,5 @@
-import {Dropdown} from "react-native-paper-dropdown"
-import {StyleSheet, View, FlatList} from "react-native";
+import {StyleSheet, View, FlatList, TouchableOpacity, Text, Platform} from "react-native";
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useTheme, Button, List, Checkbox, IconButton, TextInput} from "react-native-paper";
 import React, {useCallback} from "react";
 import {useData} from "../../helpers/contextProvider";
 import PGPKeyManager from "../../helpers/keyManager";
@@ -11,6 +9,13 @@ import {useFocusEffect, useRouter, useNavigation} from "expo-router";
 import LoadingDialog from "../../components/loadingDialog";
 import PassphraseDialog from "../../components/passphraseDialog";
 import * as DropdownMenu from 'zeego/dropdown-menu';
+import {Ionicons} from '@expo/vector-icons';
+
+import NativeInput from '../../components/ui/NativeInput';
+import NativeButton from '../../components/ui/NativeButton';
+import NativeCheckbox from '../../components/ui/NativeCheckbox';
+import NativeSelect from '../../components/ui/NativeSelect';
+import {useThemeColors} from '../../components/ui/Theme';
 
 export default function EncryptFiles() {
     const [publicKey, setPublicKey] = React.useState("");
@@ -19,7 +24,7 @@ export default function EncryptFiles() {
     const [loading, setLoading] = React.useState(false);
     const [toSign, setToSign] = React.useState(false);
     const {keys} = useData();
-    const theme = useTheme();
+    const colors = useThemeColors();
     const keyManager = new PGPKeyManager();
     const router = useRouter();
     const navigation = useNavigation();
@@ -34,22 +39,32 @@ export default function EncryptFiles() {
 
     React.useEffect(() => {
         navigation.setOptions({
-            headerRight: () => (
-                <DropdownMenu.Root>
-                    <DropdownMenu.Trigger>
-                        <IconButton icon="dots-vertical"/>
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content>
-                        <DropdownMenu.Item key="symmetric" onSelect={() => setIsSymmetric(!isSymmetric)}>
-                            <DropdownMenu.ItemTitle>
-                                {isSymmetric ? "Disable Symmetric" : "Enable Symmetric"}
-                            </DropdownMenu.ItemTitle>
-                        </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Root>
-            ),
+            headerTitle: "Encrypt Files",
+                        headerRight: () => (
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <DropdownMenu.Root>
+                                    <DropdownMenu.Trigger>
+                                        <TouchableOpacity style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Ionicons 
+                                                name={Platform.OS === 'ios' ? "ellipsis-horizontal-circle" : "ellipsis-vertical"} 
+                                                size={24} 
+                                                color={colors.text} 
+                                            />
+                                        </TouchableOpacity>
+                                    </DropdownMenu.Trigger>
+                                    <DropdownMenu.Content>
+                                        <DropdownMenu.Item key="symmetric" onSelect={() => setIsSymmetric(!isSymmetric)}>
+                                            <DropdownMenu.ItemTitle>
+                                                {isSymmetric ? "Disable Symmetric" : "Enable Symmetric"}
+                                            </DropdownMenu.ItemTitle>
+                                        </DropdownMenu.Item>
+                                    </DropdownMenu.Content>
+                                </DropdownMenu.Root>
+                            </View>
+                        ),
+            
         });
-    }, [navigation, isSymmetric]);
+    }, [navigation, isSymmetric, colors.text]);
 
     const hideLoading = () => setLoading(false);
     const hidePassphrase = () => {
@@ -124,7 +139,7 @@ export default function EncryptFiles() {
                 }
                 res = await cryptoOpts.encryptFiles(files, key.keyString, toSign ? signingKey : null, askPassphrase);
             }
-            
+
             setLoading(false);
             router.push({
                 pathname: '/preview',
@@ -138,10 +153,11 @@ export default function EncryptFiles() {
     }
 
     return (
-        <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, {backgroundColor: theme.colors.background}]}>
+        <SafeAreaView edges={['bottom', 'left', 'right']}
+                      style={[styles.container, {backgroundColor: colors.background}]}>
             {!isSymmetric && (
                 <>
-                    <Dropdown
+                    <NativeSelect
                         label="Encrypt for"
                         placeholder="Select Public Key"
                         options={keys.map(key => ({label: key.userId, value: key.id}))}
@@ -150,11 +166,15 @@ export default function EncryptFiles() {
                         style={{marginTop: 16}}
                     />
 
-                    <Checkbox.Item status={toSign ? 'checked' : 'unchecked'} label="Sign"
-                                   onPress={() => setToSign(val => !val)}/>
+                    <NativeCheckbox
+                        label="Sign"
+                        checked={toSign}
+                        onChange={setToSign}
+                        style={{marginVertical: 8}}
+                    />
 
                     {toSign && (
-                        <Dropdown
+                        <NativeSelect
                             label="Sign with"
                             placeholder="Select Private Key"
                             options={keys.filter(k => k.isPrivate).map(key => ({label: key.userId, value: key.id}))}
@@ -167,7 +187,7 @@ export default function EncryptFiles() {
             )}
 
             {isSymmetric && (
-                <TextInput
+                <NativeInput
                     label="Passphrase"
                     value={symmetricPassphrase}
                     onChangeText={setSymmetricPassphrase}
@@ -178,35 +198,34 @@ export default function EncryptFiles() {
                 />
             )}
 
-            <Button
-                mode="outlined"
+            <NativeButton
+                mode="text"
                 style={{marginVertical: 20}}
                 onPress={pickDocuments}
-                icon="file-plus"
             >
                 Add Files
-            </Button>
+            </NativeButton>
 
             <FlatList
                 data={files}
                 keyExtractor={(item) => item.uri}
                 renderItem={({item}) => (
-                    <List.Item
-                        title={item.name}
-                        left={props => <List.Icon {...props} icon="file-document-outline"/>}
-                    />
+                    <View style={[styles.fileItem, {borderBottomColor: colors.border}]}>
+                        <Ionicons name="document-text-outline" size={24} color={colors.text} style={{marginRight: 16}}/>
+                        <Text style={{color: colors.text, fontSize: 16}}>{item.name}</Text>
+                    </View>
                 )}
             />
 
-            <Button
+            <NativeButton
                 disabled={(isSymmetric ? symmetricPassphrase === "" : publicKey === "") || files.length === 0 || (toSign && signingKey === "")}
                 mode="contained"
                 style={{margin: 20}}
                 onPress={encryptFiles}
             >
                 Encrypt Files
-            </Button>
-            <LoadingDialog visible={loading} color={theme.colors.primary} onDismiss={hideLoading}/>
+            </NativeButton>
+            <LoadingDialog visible={loading} color={colors.primary} onDismiss={hideLoading}/>
             <PassphraseDialog
                 visible={passphraseVisible}
                 onDismiss={hidePassphrase}
@@ -227,4 +246,10 @@ const styles = StyleSheet.create({
         paddingLeft: 16,
         paddingRight: 16
     },
+    fileItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+    }
 });

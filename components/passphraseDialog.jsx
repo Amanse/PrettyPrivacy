@@ -1,35 +1,56 @@
 import React from 'react';
-import { Dialog, Portal, Button, TextInput, Checkbox } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import NativeDialog from './ui/NativeDialog';
+import NativeInput from './ui/NativeInput';
+import NativeButton from './ui/NativeButton';
+import NativeCheckbox from './ui/NativeCheckbox';
 
 const PassphraseDialog = ({ visible, onDismiss, onSubmit, passPhrase, setPassPhrase, checked, setChecked, title, submitLabel }) => {
     return (
-        <Portal>
-            <Dialog visible={visible} onDismiss={onDismiss}>
-                <Dialog.Title>{title || 'Enter private key password'}</Dialog.Title>
-                <Dialog.Content>
-                    <TextInput
-                        secureTextEntry={true}
-                        autoComplete="current-password"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        value={passPhrase}
-                        onChangeText={setPassPhrase}
-                        multiline={false}
-                    />
-                    <Checkbox.Item
-                        label="Save password with biometrics"
-                        status={checked ? 'checked' : 'unchecked'}
-                        onPress={() => setChecked(!checked)}
-                    />
-                </Dialog.Content>
-                <Dialog.Actions>
-                    <Button onPress={onSubmit}>{submitLabel || 'Submit'}</Button>
-                </Dialog.Actions>
-            </Dialog>
-        </Portal>
+        <NativeDialog visible={visible} onDismiss={onDismiss} title={title || 'Enter private key password'}>
+            <View>
+                <NativeInput
+                    secureTextEntry={true}
+                    autoComplete="current-password" // Native prop
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={passPhrase}
+                    onChangeText={setPassPhrase}
+                    placeholder="Passphrase"
+                />
+                <NativeCheckbox
+                    label="Save password with biometrics"
+                    checked={checked}
+                    onChange={setChecked}
+                    style={{ marginBottom: 20 }}
+                />
+                <View style={styles.actions}>
+                    <NativeButton 
+                        mode="text" 
+                        onPress={onDismiss} 
+                        style={{ flex: 1, marginRight: 8 }}
+                    >
+                        Cancel
+                    </NativeButton>
+                    <NativeButton 
+                        mode="contained" 
+                        onPress={onSubmit} 
+                        style={{ flex: 1, marginLeft: 8 }}
+                    >
+                        {submitLabel || 'Submit'}
+                    </NativeButton>
+                </View>
+            </View>
+        </NativeDialog>
     );
 };
 
-PassphraseDialog.displayName = "PassphraseDialog";
+const styles = StyleSheet.create({
+    actions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 8,
+    }
+});
 
 export default PassphraseDialog;

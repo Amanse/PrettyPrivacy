@@ -1,17 +1,20 @@
-import {Alert, Platform, Pressable, StyleSheet, Text, View} from "react-native";
-import {IconButton} from "react-native-paper";
+import React from 'react';
+import {Alert, Platform, Pressable, StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import * as Sharing from "expo-sharing";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as IntentLauncher from 'expo-intent-launcher';
+import {Ionicons} from '@expo/vector-icons';
+import {useThemeColors} from './ui/Theme';
 
-export default function FileListItem({item, theme, allowOpen, showIndividualStatus}) {
+export default function FileListItem({item, allowOpen, showIndividualStatus}) {
     const {uri, name, mimeType, isVerified} = item;
+    const colors = useThemeColors();
 
     const handleOpenFile = async () => {
         if (allowOpen) {
             return await handleShareFile();
         }
-        
+
         try {
             if (Platform.OS === 'android') {
                 const contentUri = await FileSystem.getContentUriAsync(uri);
@@ -21,7 +24,7 @@ export default function FileListItem({item, theme, allowOpen, showIndividualStat
                     type: mimeType,
                 });
             } else {
-                 await Sharing.shareAsync(uri, {mimeType});
+                await Sharing.shareAsync(uri, {mimeType});
             }
         } catch (_error) {
             console.error(_error)
@@ -57,7 +60,7 @@ export default function FileListItem({item, theme, allowOpen, showIndividualStat
 
                 Alert.alert('File Saved', `Successfully saved ${name}.`);
             } else {
-                 await Sharing.shareAsync(uri, {mimeType});
+                await Sharing.shareAsync(uri, {mimeType});
             }
 
         } catch (_error) {
@@ -67,34 +70,28 @@ export default function FileListItem({item, theme, allowOpen, showIndividualStat
     };
 
     return (
-        <View style={[styles.itemContainer, {borderBottomColor: theme.colors.border}]}>
-             <Pressable
+        <View style={[styles.itemContainer, {borderBottomColor: colors.border}]}>
+            <Pressable
                 onPress={handleOpenFile}
                 style={styles.pressable}
             >
                 <View>
-                    <Text style={[styles.fileName, {color: theme.colors.onBackground}]} numberOfLines={1} ellipsizeMode="middle">
+                    <Text style={[styles.fileName, {color: colors.text}]} numberOfLines={1} ellipsizeMode="middle">
                         {name}
                     </Text>
                     {showIndividualStatus && isVerified && (
-                        <Text style={{color: theme.colors.primary, textAlign: 'left', fontSize: 12}}>Verified</Text>
+                        <Text style={{color: colors.primary, textAlign: 'left', fontSize: 12}}>Verified</Text>
                     )}
                 </View>
             </Pressable>
-            
+
             <View style={styles.actionContainer}>
-                <IconButton
-                    icon="share-variant"
-                    mode="contained-tonal"
-                    onPress={handleShareFile}
-                    size={20}
-                />
-                <IconButton
-                    icon="download"
-                    mode="contained-tonal"
-                    onPress={handleSaveFile}
-                    size={20}
-                />
+                <TouchableOpacity onPress={handleShareFile} style={styles.iconButton}>
+                    <Ionicons name="share-outline" size={24} color={colors.primary}/>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSaveFile} style={styles.iconButton}>
+                    <Ionicons name="download-outline" size={24} color={colors.primary}/>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -107,7 +104,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 16,
-        borderBottomWidth: 1,
+        borderBottomWidth: StyleSheet.hairlineWidth,
     },
     pressable: {
         flex: 1,
@@ -119,5 +116,9 @@ const styles = StyleSheet.create({
     },
     actionContainer: {
         flexDirection: 'row',
+    },
+    iconButton: {
+        padding: 8,
+        marginLeft: 4,
     }
 });

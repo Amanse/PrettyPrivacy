@@ -1,17 +1,18 @@
-import {View, ScrollView, StyleSheet} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useLocalSearchParams, Stack} from 'expo-router';
-import {Appbar, List, useTheme, Text, Portal, Snackbar} from "react-native-paper";
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import Share from 'react-native-share';
 import React from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { useThemeColors } from '../components/ui/Theme';
+import NativeSnackbar from '../components/ui/NativeSnackbar';
 
 export default function TextPreviewScreen() {
     const params = useLocalSearchParams();
-    // expecting { text: '...', isVerified: 'true' | 'false' }
     const { text, isVerified } = params;
-    const theme = useTheme();
-    const [snackbar, setSnackbar] = React.useState({visible: false, message: ''});
+    const colors = useThemeColors();
+    const [snackbar, setSnackbar] = React.useState({ visible: false, message: '' });
 
     const isSignatureVerified = isVerified === 'true';
     const isSignatureNotVerified = isVerified === 'false';
@@ -31,45 +32,52 @@ export default function TextPreviewScreen() {
 
     const copyText = async () => {
         await Clipboard.setStringAsync(text);
-        setSnackbar({visible: true, message: 'Copied to clipboard'});
+        setSnackbar({ visible: true, message: 'Copied to clipboard' });
     };
 
     return (
-        <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, {backgroundColor: theme.colors.background}]}>
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{
-                header: (props) => (
-                    <Appbar.Header>
-                        <Appbar.Content title="Decrypted Text" />
-                        <Appbar.Action icon="share-variant" onPress={shareText} />
-                        <Appbar.Action icon="content-copy" onPress={copyText} />
-                    </Appbar.Header>
+                title: "Decrypted Text",
+                headerStyle: { backgroundColor: colors.background },
+                headerTintColor: colors.text,
+                headerShadowVisible: false,
+                headerRight: () => (
+                    <View style={{ flexDirection: 'row' }}>
+                        <TouchableOpacity onPress={shareText} style={{ marginRight: 16 }}>
+                            <Ionicons name="share-outline" size={24} color={colors.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={copyText}>
+                            <Ionicons name="copy-outline" size={24} color={colors.primary} />
+                        </TouchableOpacity>
+                    </View>
                 )
             }}/>
+            
             {isSignatureVerified && (
-                <List.Item
-                    title="Signature verified"
-                    left={props => <List.Icon {...props} icon="check-circle" color={theme.colors.primary}/>}
-                    titleStyle={{color: theme.colors.primary}}
-                />
+                <View style={[styles.statusHeader, { borderBottomColor: colors.border }]}>
+                    <Ionicons name="checkmark-circle" size={24} color={colors.primary} style={{ marginRight: 16 }} />
+                    <Text style={[styles.statusText, { color: colors.primary }]}>Signature verified</Text>
+                </View>
             )}
+            
             {isSignatureNotVerified && (
-                <List.Item
-                    title="Signature not verified"
-                    left={props => <List.Icon {...props} icon="close-circle" color={theme.colors.error}/>}
-                    titleStyle={{color: theme.colors.error}}
-                />
+                <View style={[styles.statusHeader, { borderBottomColor: colors.border }]}>
+                    <Ionicons name="close-circle" size={24} color={colors.error} style={{ marginRight: 16 }} />
+                    <Text style={[styles.statusText, { color: colors.error }]}>Signature not verified</Text>
+                </View>
             )}
+
             <ScrollView style={styles.scrollView}>
-                <Text selectable style={styles.text}>{text}</Text>
+                <Text selectable style={[styles.text, { color: colors.text }]}>{text}</Text>
             </ScrollView>
-            <Portal>
-                <Snackbar
-                    visible={snackbar.visible}
-                    onDismiss={() => setSnackbar({...snackbar, visible: false})}
-                    duration={Snackbar.DURATION_SHORT}>
-                    {snackbar.message}
-                </Snackbar>
-            </Portal>
+            
+            <NativeSnackbar
+                visible={snackbar.visible}
+                onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
+            >
+                {snackbar.message}
+            </NativeSnackbar>
         </SafeAreaView>
     );
 }
@@ -79,9 +87,19 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollView: {
-        paddingHorizontal: 16,
+        padding: 16,
     },
     text: {
         fontSize: 16,
+    },
+    statusHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    statusText: {
+        fontSize: 16,
+        fontWeight: '500',
     }
 });

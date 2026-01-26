@@ -1,19 +1,23 @@
 import React, {useCallback, useState} from 'react';
-import {View} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Button, TextInput, HelperText, useTheme} from 'react-native-paper';
 import PGPKeyManager from "../../helpers/keyManager";
-import {useFocusEffect, useRouter} from "expo-router";
+import {useFocusEffect, useNavigation, useRouter} from "expo-router";
 import {useData} from "../../helpers/contextProvider";
+import NativeInput from '../../components/ui/NativeInput';
+import NativeButton from '../../components/ui/NativeButton';
+import {useThemeColors} from '../../components/ui/Theme';
 
 export default function GenerateKeyForm() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [passphrase, setPassphrase] = useState('');
     const router = useRouter();
+    const navigation = useNavigation();
 
     const {setUpdateKey} = useData();
     const keyManager = PGPKeyManager.getInstance();
+    const colors = useThemeColors();
 
     useFocusEffect(
         useCallback(() => {
@@ -25,8 +29,11 @@ export default function GenerateKeyForm() {
         }, [])
     )
 
+    React.useEffect(() => {
+        navigation.setOptions({headerTitle: "Generate Key"});
+    })
+
     const handleGenerateKey = () => {
-        // Handle key generation logic here
         keyManager.generateKeyPairAndSave(name, email, passphrase).then(res => {
             if (res === "success") {
                 setUpdateKey((c) => !c)
@@ -35,40 +42,43 @@ export default function GenerateKeyForm() {
         })
     };
 
-    const theme = useTheme();
-
     return (
-        <SafeAreaView edges={['bottom', 'left', 'right']} style={{padding: 16, backgroundColor: theme.colors.background, height: '100%'}}>
-            <TextInput
+        <SafeAreaView edges={['bottom', 'left', 'right']}
+                      style={{padding: 16, backgroundColor: colors.background, height: '100%'}}>
+            <NativeInput
                 label="Name"
                 value={name}
                 onChangeText={setName}
-                mode="outlined"
-                style={{marginBottom: 16}}
             />
-            <TextInput
+            <NativeInput
                 label="Email"
                 value={email}
                 onChangeText={setEmail}
-                mode="outlined"
-                style={{marginBottom: 16}}
                 keyboardType="email-address"
                 autoCapitalize="none"
             />
-            <TextInput
+            <NativeInput
                 label="Passphrase (optional)"
                 value={passphrase}
                 onChangeText={setPassphrase}
-                mode="outlined"
-                style={{marginBottom: 16}}
                 secureTextEntry
             />
-            <HelperText type="info" style={{marginBottom: 16}}>
+            <Text style={[styles.helperText, {color: colors.placeholder}]}>
                 An optional passphrase to protect your key.
-            </HelperText>
-            <Button mode="contained" onPress={handleGenerateKey}>
+            </Text>
+
+            <NativeButton mode="contained" onPress={handleGenerateKey} style={{marginTop: 20}}>
                 Generate Key
-            </Button>
+            </NativeButton>
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    helperText: {
+        fontSize: 12,
+        marginTop: -10,
+        marginBottom: 16,
+        marginLeft: 4,
+    }
+});

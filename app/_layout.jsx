@@ -1,13 +1,11 @@
 import {Stack, useRouter} from 'expo-router';
-import {MD3DarkTheme, Provider as PaperProvider} from 'react-native-paper';
 import React from "react";
 import {initializeSecureStorage} from "../helpers/storage";
-import {Text} from "react-native";
+import {Text, View, useColorScheme} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
 import DataContext from '../helpers/contextProvider';
 import {ShareIntentProvider, useShareIntentContext} from "expo-share-intent";
-
-const theme = {...MD3DarkTheme};
+import { Colors } from '../components/ui/Theme';
 
 function Layout() {
     const [isStorageInitialized, setIsStorageInitialized] = React.useState(false);
@@ -15,6 +13,8 @@ function Layout() {
     const keyManager = React.useMemo(() => new PGPKeyManager(), []);
     const [updateKey, setUpdateKey] = React.useState(true);
     const router = useRouter();
+    const colorScheme = useColorScheme();
+    const themeColors = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
 
     const {hasShareIntent, shareIntent, resetShareIntent} = useShareIntentContext();
 
@@ -61,23 +61,22 @@ function Layout() {
             <Stack
                 screenOptions={{
                     headerStyle: {
-                        backgroundColor: theme.colors.background,
+                        backgroundColor: themeColors.background,
                     },
-                    headerTintColor: theme.colors.onBackground,
+                    headerTintColor: themeColors.text,
+                    headerShadowVisible: false, // Cleaner native look
                 }}
             >
                 <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
             </Stack>
         </DataContext.Provider>
-    ) : (<Text>Loading</Text>);
+    ) : (<View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: themeColors.background}}><Text style={{color: themeColors.text}}>Loading...</Text></View>);
 }
 
 export default function RootLayout() {
     return (
         <ShareIntentProvider>
-            <PaperProvider theme={theme}>
-                <Layout/>
-            </PaperProvider>
+            <Layout/>
         </ShareIntentProvider>
     );
 }

@@ -4,7 +4,7 @@ This file is for the Gemini agent's internal notes and observations about the pr
 
 ## Project Structure and Conventions:
 - React Native project using Expo.
-- Uses `react-native-paper` for UI components.
+- Uses native UI components (`components/ui/*`) instead of a UI library.
 - Navigation handled by `expo-router`.
 - Cryptographic operations are in `helpers/cryptoOps.js`.
 - Key management is in `helpers/keyManager.js`.

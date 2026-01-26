@@ -1,23 +1,26 @@
-import React, {useCallback} from 'react';
-import {View, StyleSheet} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useLocalSearchParams, useRouter, Stack} from 'expo-router';
-import {Button, List, Text, useTheme, Portal, Snackbar} from 'react-native-paper';
-import {decryptFiles} from "../helpers/cryptoOps";
+import React, { useCallback } from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { decryptFiles } from "../helpers/cryptoOps";
 import LoadingDialog from "../components/loadingDialog";
 import PassphraseDialog from "../components/passphraseDialog";
 import * as FileSystem from 'expo-file-system/legacy';
+import { Ionicons } from '@expo/vector-icons';
+import NativeButton from '../components/ui/NativeButton';
+import NativeSnackbar from '../components/ui/NativeSnackbar';
+import { useThemeColors } from '../components/ui/Theme';
 
 export default function DecryptImportedFile() {
     const params = useLocalSearchParams();
     const router = useRouter();
-    const theme = useTheme();
+    const colors = useThemeColors();
 
     const [visible, setVisible] = React.useState(false);
     const [passPhrase, setPassPhrase] = React.useState("");
     const [resolvePassphrase, setResolvePassphrase] = React.useState(null);
     const [checked, setChecked] = React.useState(false);
-    const [snackbar, setSnackbar] = React.useState({visible: false, message: ''});
+    const [snackbar, setSnackbar] = React.useState({ visible: false, message: '' });
     const [isLoading, setIsLoading] = React.useState(false);
 
     // Params might come as array or string depending on navigation, handle both
@@ -42,7 +45,7 @@ export default function DecryptImportedFile() {
 
     const handleDecryptDialogSubmit = () => {
         if (resolvePassphrase) {
-            resolvePassphrase({passPhrase, useBiometrics: checked});
+            resolvePassphrase({ passPhrase, useBiometrics: checked });
         }
         hideDialog();
         setIsLoading(true);
@@ -50,7 +53,7 @@ export default function DecryptImportedFile() {
 
     const handleDecrypt = async () => {
         if (!fileUri) {
-            setSnackbar({visible: true, message: 'No file to decrypt.'});
+            setSnackbar({ visible: true, message: 'No file to decrypt.' });
             return;
         }
 
@@ -87,37 +90,42 @@ export default function DecryptImportedFile() {
 
         } catch (err) {
             console.error(err)
-            setSnackbar({visible: true, message: err.message || 'An unexpected error occurred.'});
+            setSnackbar({ visible: true, message: err.message || 'An unexpected error occurred.' });
             setIsLoading(false);
         }
     };
 
     return (
-        <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, {backgroundColor: theme.colors.background}]}>
-            <Stack.Screen options={{title: "Decrypt Imported File"}}/>
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
+            <Stack.Screen options={{ 
+                title: "Decrypt Imported File",
+                headerStyle: { backgroundColor: colors.background },
+                headerTintColor: colors.text,
+                headerShadowVisible: false,
+            }}/>
 
             <View style={styles.content}>
-                <List.Icon icon="file-import" style={{alignSelf: 'center', marginBottom: 20}}/>
-                <Text variant="headlineSmall"
-                      style={{textAlign: 'center', marginBottom: 20, color: theme.colors.onBackground}}>
+                <Ionicons name="download-outline" size={64} color={colors.text} style={{ alignSelf: 'center', marginBottom: 20 }} />
+                
+                <Text style={[styles.title, { color: colors.text }]}>
                     Imported File
                 </Text>
 
-                <List.Item
-                    title={fileName || "Unknown File"}
-                    description="Ready to decrypt"
-                    left={props => <List.Icon {...props} icon="file-document-outline"/>}
-                    style={styles.fileItem}
-                />
+                <View style={[styles.fileItem, { backgroundColor: colors.surface }]}>
+                    <Ionicons name="document-text-outline" size={24} color={colors.text} style={{ marginRight: 16 }} />
+                    <View>
+                        <Text style={[styles.fileName, { color: colors.text }]}>{fileName || "Unknown File"}</Text>
+                        <Text style={[styles.fileDesc, { color: colors.placeholder }]}>Ready to decrypt</Text>
+                    </View>
+                </View>
 
-                <Button
+                <NativeButton
                     mode="contained"
                     onPress={handleDecrypt}
                     style={styles.button}
-                    icon="lock-open"
                 >
                     Decrypt
-                </Button>
+                </NativeButton>
             </View>
 
             <PassphraseDialog
@@ -130,15 +138,15 @@ export default function DecryptImportedFile() {
                 setChecked={setChecked}
                 submitLabel="Decrypt"
             />
-            <Portal>
-                <Snackbar
-                    visible={snackbar.visible}
-                    onDismiss={() => setSnackbar({...snackbar, visible: false})}
-                    duration={Snackbar.DURATION_SHORT}>
-                    {snackbar.message}
-                </Snackbar>
-            </Portal>
-            <LoadingDialog onDismiss={hideLoading} isLoading={isLoading} color={theme.colors.primary}/>
+            
+            <NativeSnackbar
+                visible={snackbar.visible}
+                onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
+            >
+                {snackbar.message}
+            </NativeSnackbar>
+            
+            <LoadingDialog onDismiss={hideLoading} visible={isLoading} color={colors.primary} />
         </SafeAreaView>
     );
 }
@@ -152,10 +160,24 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
     },
+    title: {
+        fontSize: 24,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
     fileItem: {
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
         borderRadius: 8,
         marginBottom: 24,
+    },
+    fileName: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    fileDesc: {
+        fontSize: 14,
     },
     button: {
         marginTop: 8,

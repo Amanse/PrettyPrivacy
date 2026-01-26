@@ -1,8 +1,6 @@
-import {Dropdown} from "react-native-paper-dropdown"
-import {ScrollView, StyleSheet, View} from "react-native";
+import {ScrollView, StyleSheet, View, TouchableOpacity, Platform} from "react-native";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
-import {useTheme, TextInput, Button, Text, Checkbox, IconButton} from "react-native-paper";
 import React, {useCallback} from "react";
 import {useData} from "../../helpers/contextProvider";
 import {encryptMessage, encryptSymmetricMessage} from "../../helpers/cryptoOps";
@@ -11,6 +9,13 @@ import LoadingDialog from "../../components/loadingDialog";
 import {useFocusEffect, useNavigation} from "expo-router";
 import PassphraseDialog from "../../components/passphraseDialog";
 import * as DropdownMenu from 'zeego/dropdown-menu';
+import {Ionicons} from '@expo/vector-icons';
+
+import NativeInput from '../../components/ui/NativeInput';
+import NativeButton from '../../components/ui/NativeButton';
+import NativeCheckbox from '../../components/ui/NativeCheckbox';
+import NativeSelect from '../../components/ui/NativeSelect';
+import {useThemeColors} from '../../components/ui/Theme';
 
 export default function EncryptText() {
     const [publicKey, setPublicKey] = React.useState("");
@@ -20,7 +25,7 @@ export default function EncryptText() {
     const [loading, setLoading] = React.useState(false);
     const [toSign, setToSign] = React.useState(false);
     const {keys} = useData();
-    const theme = useTheme();
+    const colors = useThemeColors();
     const keyManager = new PGPKeyManager();
     const navigation = useNavigation();
 
@@ -34,22 +39,32 @@ export default function EncryptText() {
 
     React.useEffect(() => {
         navigation.setOptions({
-            headerRight: () => (
-                <DropdownMenu.Root>
-                    <DropdownMenu.Trigger>
-                        <IconButton icon="dots-vertical"/>
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content>
-                        <DropdownMenu.Item key="symmetric" onSelect={() => setIsSymmetric(!isSymmetric)}>
-                            <DropdownMenu.ItemTitle>
-                                {isSymmetric ? "Disable Symmetric" : "Enable Symmetric"}
-                            </DropdownMenu.ItemTitle>
-                        </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Root>
-            ),
+            headerTitle: "Encrypt Text",
+                        headerRight: () => (
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <DropdownMenu.Root>
+                                    <DropdownMenu.Trigger>
+                                        <TouchableOpacity style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Ionicons 
+                                                name={Platform.OS === 'ios' ? "ellipsis-horizontal-circle" : "ellipsis-vertical"} 
+                                                size={24} 
+                                                color={colors.text} 
+                                            />
+                                        </TouchableOpacity>
+                                    </DropdownMenu.Trigger>
+                                    <DropdownMenu.Content>
+                                        <DropdownMenu.Item key="symmetric" onSelect={() => setIsSymmetric(!isSymmetric)}>
+                                            <DropdownMenu.ItemTitle>
+                                                {isSymmetric ? "Disable Symmetric" : "Enable Symmetric"}
+                                            </DropdownMenu.ItemTitle>
+                                        </DropdownMenu.Item>
+                                    </DropdownMenu.Content>
+                                </DropdownMenu.Root>
+                            </View>
+                        ),
+            
         });
-    }, [navigation, isSymmetric]);
+    }, [navigation, isSymmetric, colors.text]);
 
     const hideLoading = () => setLoading(false);
     const hidePassphrase = () => {
@@ -110,7 +125,7 @@ export default function EncryptText() {
                 }
                 msg = await encryptMessage(textToEncrypt, key.keyString, toSign ? signingKey : null, askPassphrase);
             }
-            
+
             setEncryptedText(msg)
             await Clipboard.setStringAsync(msg)
         } catch (error) {
@@ -121,10 +136,11 @@ export default function EncryptText() {
         }
     }
 
-    return <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.container, {backgroundColor: theme.colors.background}]}>
+    return <SafeAreaView edges={['bottom', 'left', 'right']}
+                         style={[styles.container, {backgroundColor: colors.background}]}>
         {!isSymmetric && (
             <>
-                <Dropdown
+                <NativeSelect
                     label="Encrypt for"
                     placeholder="Select Public Key"
                     options={keys.map(key => ({label: key.userId, value: key.id}))}
@@ -133,10 +149,15 @@ export default function EncryptText() {
                     style={{marginTop: 16}}
                 />
 
-                <Checkbox.Item status={toSign ? 'checked' : 'unchecked'} label="Sign" onPress={() => setToSign(val => !val)}/>
+                <NativeCheckbox
+                    label="Sign"
+                    checked={toSign}
+                    onChange={setToSign}
+                    style={{marginVertical: 8}}
+                />
 
                 {toSign && (
-                    <Dropdown
+                    <NativeSelect
                         label="Sign with"
                         placeholder="Select Private Key"
                         options={keys.filter(k => k.isPrivate).map(key => ({label: key.userId, value: key.id}))}
@@ -149,7 +170,7 @@ export default function EncryptText() {
         )}
 
         {isSymmetric && (
-            <TextInput
+            <NativeInput
                 label="Passphrase"
                 value={symmetricPassphrase}
                 onChangeText={setSymmetricPassphrase}
@@ -161,7 +182,7 @@ export default function EncryptText() {
         )}
 
         <ScrollView style={{flex: 1}}>
-            <TextInput
+            <NativeInput
                 label="Enter text here..."
                 value={textToEncrypt}
                 onChangeText={setTextToEncrypt}
@@ -170,17 +191,18 @@ export default function EncryptText() {
             />
         </ScrollView>
 
-        <Button
+        <NativeButton
             disabled={(isSymmetric ? symmetricPassphrase === "" : publicKey === "") || textToEncrypt === "" || (toSign && signingKey === "")}
             mode="contained"
             style={{margin: 20}}
             onPress={() => encryptAndShowOutput()}
         >
             Encrypt
-        </Button>
+        </NativeButton>
 
-        <Text>{encryptedText}</Text>
-        <LoadingDialog visible={loading} color={theme.colors.primary} onDismiss={hideLoading}/>
+        {/* Helper text display if needed, though usually copied to clipboard */}
+
+        <LoadingDialog visible={loading} color={colors.primary} onDismiss={hideLoading}/>
         <PassphraseDialog
             visible={passphraseVisible}
             onDismiss={hidePassphrase}
@@ -199,10 +221,5 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingLeft: 16,
         paddingRight: 16
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
 });

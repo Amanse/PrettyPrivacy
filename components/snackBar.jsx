@@ -1,16 +1,14 @@
-import {Portal, Snackbar, useTheme} from "react-native-paper";
+import React from 'react';
+import NativeSnackbar from './ui/NativeSnackbar';
 
-export default function SnackBar({visible, label, title, onDismissSnackBar, onPress}) {
-    const theme = useTheme();
-
-    return <Portal><Snackbar
-        visible={visible}
-        theme={theme}
-        onDismiss={onDismissSnackBar}
-        action={{
-            label: label,
-            onPress: onPress,
-        }}>
-        {title}
-    </Snackbar></Portal>
+export default function SnackBar({ visible, label, title, onDismissSnackBar, onPress }) {
+    return (
+        <NativeSnackbar
+            visible={visible}
+            onDismiss={onDismissSnackBar}
+            action={label ? { label, onPress } : null}
+        >
+            {title}
+        </NativeSnackbar>
+    );
 }

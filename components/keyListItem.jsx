@@ -1,20 +1,20 @@
 import React from "react";
-import {Chip, Divider, List, Menu} from "react-native-paper";
-import {View, Alert} from "react-native";
+import { View, Text, Pressable, StyleSheet, Alert, Platform } from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
-import * as Clipboard from "expo-clipboard"
-import {useData} from "../helpers/contextProvider";
-import * as SecureStore from "expo-secure-store"
+import * as Clipboard from "expo-clipboard";
+import { useData } from "../helpers/contextProvider";
+import * as SecureStore from "expo-secure-store";
 import CustomSnackbar from "./snackBar";
+import * as DropdownMenu from 'zeego/dropdown-menu';
+import { Ionicons } from '@expo/vector-icons';
+import { useThemeColors } from './ui/Theme';
 
-export default function KeyListItem({item}) {
-    const [visible, setVisible] = React.useState(false);
-    const {setUpdateKey} = useData();
+export default function KeyListItem({ item }) {
+    const { setUpdateKey } = useData();
     const [showClearPassSnackbar, setShowClearPassSnackbar] = React.useState(false);
-
-    const openMenu = React.useCallback(() => setVisible(true), []);
     const keyManager = React.useMemo(() => new PGPKeyManager(), []);
-    const closeMenu = React.useCallback(() => setVisible(false), []);
+    const colors = useThemeColors();
+
     const copyToClipboard = React.useCallback(async (text) => {
         await Clipboard.setStringAsync(text);
     }, []);
@@ -22,7 +22,7 @@ export default function KeyListItem({item}) {
     const copyPublicKeyToClipboard = React.useCallback(async (keyId) => {
         const key = keyManager.getPublicKeyById(keyId);
         if (key) {
-            await copyToClipboard(key.keyString)
+            await copyToClipboard(key.keyString);
         } else {
             alert("Key not found.");
         }
@@ -31,77 +31,122 @@ export default function KeyListItem({item}) {
     const copyPrivateKeyToClipboard = React.useCallback(async (keyId) => {
         const key = keyManager.getPrivateKeyById(keyId);
         if (key) {
-            await copyToClipboard(key.keyString)
+            await copyToClipboard(key.keyString);
         } else {
             alert("Key not found.");
         }
     }, [keyManager, copyToClipboard]);
 
-
-    const showConfirmAlert = React.useCallback(() => {
+    const handleDelete = async () => {
         Alert.alert(
-            "Confirm Action", // Alert Title
-            "Are you sure you want to remove this key?", // Alert Message
+            "Confirm Action",
+            "Are you sure you want to remove this key?",
             [
-                {
-                    text: "No",
-                    onPress: () => console.log("Cancel Pressed"),
-                    style: "cancel" // Style for the cancel button
-                },
+                { text: "No", style: "cancel" },
                 {
                     text: "Yes",
+                    style: "destructive",
                     onPress: async () => {
                         await keyManager.deleteKeyById(item.id);
-                        setUpdateKey(a => !a)
-                    },
-                    style: "destructive" // Style for a destructive action (optional)
+                        setUpdateKey(a => !a);
+                    }
                 }
-            ],
-            {cancelable: false} // Prevents dismissing the alert by tapping outside
+            ]
         );
-    }, [setUpdateKey, item.id, keyManager]);
+    };
+
+    const handleClearPasswords = async () => {
+        await SecureStore.deleteItemAsync(`passphrase_${item.subKeyId}`);
+        setShowClearPassSnackbar(true);
+    };
 
     return (
         <View>
-            <Menu
-                visible={visible}
-                onDismiss={closeMenu}
-                anchor={(
-                    <List.Item
-                        title={item.userId}
-                        description={item.id}
-                        onLongPress={openMenu}
-                        left={props => <List.Icon {...props} icon="key-variant"/>}
-                        right={props => <Chip>{item.isPrivate ? "Private" : "Public"}</Chip>}
-                    />
-                )}
-            >
-                <Menu.Item onPress={() => {
-                    showConfirmAlert()
-                    closeMenu()
-                }} title="Delete"/>
-                <Menu.Item onPress={async () => {
-                    await copyPublicKeyToClipboard(item.id);
-                    closeMenu();
-                }} title="Copy public key"/>
-                <Divider/>
-                {item.isPrivate ? <Menu.Item onPress={async () => {
-                    await copyPrivateKeyToClipboard(item.id);
-                    closeMenu();
-                }} title="Copy private key"/> : null}
-                {item.isPrivate ? <Menu.Item onPress={async () => {
-                    await SecureStore.deleteItemAsync(`passphrase_${item.subKeyId}`);
-                    setShowClearPassSnackbar(true);
-                    closeMenu();
-                }} title="Clear saved passwords"/> : null}
-            </Menu>
+            <DropdownMenu.Root>
+                <DropdownMenu.Trigger>
+                    <Pressable style={({ pressed }) => [styles.container, pressed && { backgroundColor: colors.border + '40' }]}>
+                        <View style={styles.left}>
+                            <Ionicons name="key" size={24} color={colors.text} style={styles.icon} />
+                            <View>
+                                <Text style={[styles.title, { color: colors.text }]}>{item.userId}</Text>
+                                <Text style={[styles.description, { color: colors.placeholder }]}>{item.id}</Text>
+                            </View>
+                        </View>
+                        <View style={[styles.chip, { backgroundColor: colors.border }]}>
+                            <Text style={[styles.chipText, { color: colors.text }]}>
+                                {item.isPrivate ? "Private" : "Public"}
+                            </Text>
+                        </View>
+                    </Pressable>
+                </DropdownMenu.Trigger>
+
+                <DropdownMenu.Content>
+                    <DropdownMenu.Item key="copy-public" onSelect={() => copyPublicKeyToClipboard(item.id)}>
+                        <DropdownMenu.ItemTitle>Copy Public Key</DropdownMenu.ItemTitle>
+                    </DropdownMenu.Item>
+                    
+                    {item.isPrivate && (
+                        <DropdownMenu.Item key="copy-private" onSelect={() => copyPrivateKeyToClipboard(item.id)}>
+                            <DropdownMenu.ItemTitle>Copy Private Key</DropdownMenu.ItemTitle>
+                        </DropdownMenu.Item>
+                    )}
+
+                    {item.isPrivate && (
+                        <DropdownMenu.Item key="clear-pass" onSelect={handleClearPasswords}>
+                            <DropdownMenu.ItemTitle>Clear Saved Passwords</DropdownMenu.ItemTitle>
+                        </DropdownMenu.Item>
+                    )}
+
+                    <DropdownMenu.Item key="delete" onSelect={handleDelete} destructive>
+                        <DropdownMenu.ItemTitle>Delete Key</DropdownMenu.ItemTitle>
+                    </DropdownMenu.Item>
+                </DropdownMenu.Content>
+            </DropdownMenu.Root>
 
             <CustomSnackbar
                 visible={showClearPassSnackbar}
                 onDismissSnackBar={() => setShowClearPassSnackbar(false)}
                 title="Cleared Saved passwords"
                 label="dismiss"
+                onPress={() => setShowClearPassSnackbar(false)}
             />
         </View>
-    )
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 16,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#ccc',
+    },
+    left: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    icon: {
+        marginRight: 16,
+    },
+    title: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    description: {
+        fontSize: 12,
+        marginTop: 2,
+    },
+    chip: {
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 12,
+        marginLeft: 8,
+    },
+    chipText: {
+        fontSize: 10,
+        fontWeight: '600',
+    }
+});
