@@ -5,7 +5,7 @@ import {Text, View, useColorScheme} from "react-native";
 import PGPKeyManager from "../helpers/keyManager";
 import DataContext from '../helpers/contextProvider';
 import {ShareIntentProvider, useShareIntentContext} from "expo-share-intent";
-import { Colors } from '../components/ui/Theme';
+import {Colors} from '../components/ui/Theme';
 
 function Layout() {
     const [isStorageInitialized, setIsStorageInitialized] = React.useState(false);
@@ -67,10 +67,12 @@ function Layout() {
                     headerShadowVisible: false, // Cleaner native look
                 }}
             >
-                <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+                <Stack.Screen name="Home" options={{headerShown: false}}/>
             </Stack>
         </DataContext.Provider>
-    ) : (<View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: themeColors.background}}><Text style={{color: themeColors.text}}>Loading...</Text></View>);
+    ) : (<View
+        style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: themeColors.background}}><Text
+        style={{color: themeColors.text}}>Loading...</Text></View>);
 }
 
 export default function RootLayout() {

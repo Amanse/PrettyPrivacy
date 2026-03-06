@@ -1,40 +1,32 @@
 import React, { useCallback } from 'react';
 import { useFocusEffect, useRouter } from "expo-router"
 import * as Clipboard from "expo-clipboard"
-import { ScrollView, View, Text, StyleSheet, Pressable } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { decryptMessage, decryptFiles } from "../../helpers/cryptoOps";
 import { pickFileAndGetData } from "../../helpers/general";
-import LoadingDialog from "../../components/loadingDialog";
-import PassphraseDialog from "../../components/passphraseDialog";
 import { Ionicons } from '@expo/vector-icons';
 import NativeSnackbar from '../../components/ui/NativeSnackbar';
 import { useThemeColors } from '../../components/ui/Theme';
+import NativeDialog from '../../components/ui/NativeDialog';
+import NativeInput from '../../components/ui/NativeInput';
+import NativeCheckbox from '../../components/ui/NativeCheckbox';
+import NativeButton from '../../components/ui/NativeButton';
 
 const EncryptDecryptScreen = () => {
     const colors = useThemeColors();
     const router = useRouter();
 
-    const [visible, setVisible] = React.useState(false);
+    const [activeModal, setActiveModal] = React.useState('none'); // 'none', 'loading', 'passphrase'
     const [passPhrase, setPassPhrase] = React.useState("");
     const [resolvePassphrase, setResolvePassphrase] = React.useState(null);
     const [checked, setChecked] = React.useState(false);
     const [snackbar, setSnackbar] = React.useState({ visible: false, message: '' });
-    const [isLoading, setIsLoading] = React.useState(false);
-
-    const showDialog = () => setVisible(true);
-    const hideDialog = () => {
-        setVisible(false)
-        setPassPhrase("");
-        setChecked(false);
-    }
-    const hideLoading = () => setIsLoading(false);
 
     useFocusEffect(
         useCallback(() => {
             return () => {
-                setIsLoading(false);
-                setVisible(false);
+                setActiveModal('none');
                 setResolvePassphrase(null);
                 setPassPhrase("");
                 setChecked(false);
@@ -44,10 +36,11 @@ const EncryptDecryptScreen = () => {
     )
 
     const readFromClipboardAndDecrypt = async () => {
-        setIsLoading(true);
+        setActiveModal('loading');
+        await new Promise(r => setTimeout(r, 100));
         const text = await Clipboard.getStringAsync();
         const result = await decryptMessage(text, askPassphrase);
-        setIsLoading(false);
+        setActiveModal('none');
         if (result.error) {
             setSnackbar({ visible: true, message: result.error });
         } else {
@@ -61,20 +54,21 @@ const EncryptDecryptScreen = () => {
         }
     }
 
-    const askPassphrase = () => {
-        setIsLoading(false);
-        showDialog();
+    const askPassphrase = async () => {
+        setActiveModal('passphrase');
         return new Promise((resolve) => {
             setResolvePassphrase(() => resolve);
         });
     }
 
-    const handleDecrypt = () => {
-        if (resolvePassphrase) {
-            resolvePassphrase({ passPhrase, useBiometrics: checked });
+    const handleDecryptDialogSubmit = async () => {
+        const resolve = resolvePassphrase;
+        if (resolve) {
+            setResolvePassphrase(null);
+            setActiveModal('loading');
+            await new Promise(r => setTimeout(r, 100));
+            resolve({ passPhrase, useBiometrics: checked });
         }
-        hideDialog();
-        setIsLoading(true);
     };
 
     const selectAndDecryptFile = async () => {
@@ -86,9 +80,10 @@ const EncryptDecryptScreen = () => {
                 return;
             }
 
-            setIsLoading(true);
+            setActiveModal('loading');
+            await new Promise(r => setTimeout(r, 100));
             const res = await decryptFiles(files, askPassphrase);
-            setIsLoading(false);
+            setActiveModal('none');
 
             router.push({
                 pathname: "/preview",
@@ -100,6 +95,7 @@ const EncryptDecryptScreen = () => {
         } catch (err) {
             console.error(err)
             setSnackbar({ visible: true, message: err.message || 'An unexpected error occurred.' });
+            setActiveModal('none');
         }
     };
 
@@ -156,16 +152,53 @@ const EncryptDecryptScreen = () => {
                     onPress={() => readFromClipboardAndDecrypt()}
                 />
 
-                <PassphraseDialog
-                    visible={visible}
-                    onDismiss={hideDialog}
-                    onSubmit={handleDecrypt}
-                    passPhrase={passPhrase}
-                    setPassPhrase={setPassPhrase}
-                    checked={checked}
-                    setChecked={setChecked}
-                    submitLabel="Decrypt"
-                />
+                <NativeDialog
+                    visible={activeModal !== 'none'}
+                    onDismiss={() => setActiveModal('none')}
+                    title={activeModal === 'passphrase' ? 'Enter private key password' : null}
+                >
+                    {activeModal === 'loading' && (
+                        <View style={styles.loadingContent}>
+                            <ActivityIndicator animating={true} size="large" color={colors.primary}/>
+                            <Text style={[styles.loadingText, {color: colors.text}]}>Processing...</Text>
+                        </View>
+                    )}
+                    {activeModal === 'passphrase' && (
+                        <View>
+                            <NativeInput
+                                secureTextEntry={true}
+                                autoComplete="current-password"
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                value={passPhrase}
+                                onChangeText={setPassPhrase}
+                                placeholder="Passphrase"
+                            />
+                            <NativeCheckbox
+                                label="Save password with biometrics"
+                                checked={checked}
+                                onChange={setChecked}
+                                style={{marginBottom: 20}}
+                            />
+                            <View style={styles.actions}>
+                                <NativeButton
+                                    mode="text"
+                                    onPress={() => setActiveModal('none')}
+                                    style={{flex: 1, marginRight: 8}}
+                                >
+                                    Cancel
+                                </NativeButton>
+                                <NativeButton
+                                    mode="contained"
+                                    onPress={handleDecryptDialogSubmit}
+                                    style={{flex: 1, marginLeft: 8}}
+                                >
+                                    Decrypt
+                                </NativeButton>
+                            </View>
+                        </View>
+                    )}
+                </NativeDialog>
                 
                 <NativeSnackbar
                     visible={snackbar.visible}
@@ -173,8 +206,6 @@ const EncryptDecryptScreen = () => {
                 >
                     {snackbar.message}
                 </NativeSnackbar>
-                
-                <LoadingDialog onDismiss={hideLoading} visible={isLoading} color={colors.primary} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -211,6 +242,20 @@ const styles = StyleSheet.create({
         height: StyleSheet.hairlineWidth,
         marginVertical: 8,
         marginHorizontal: 16,
+    },
+    loadingContent: {
+        alignItems: 'center',
+        padding: 10,
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    actions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 8,
     }
 });
 
