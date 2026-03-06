@@ -1,5 +1,7 @@
 import React from 'react';
 import { TextInput, View, Text, StyleSheet, Platform } from 'react-native';
+import * as UI from '@expo/ui/swift-ui';
+import * as Modifiers from '@expo/ui/swift-ui/modifiers';
 import { useThemeColors } from './Theme';
 
 export default function NativeInput({
@@ -15,6 +17,35 @@ export default function NativeInput({
   ...props
 }) {
   const colors = useThemeColors();
+
+  if (Platform.OS === 'ios' && !multiline) {
+    return (
+      <View style={[styles.container, style]}>
+        {label && <Text style={[styles.label, { color: colors.text }]}>{label}</Text>}
+        <UI.Host style={styles.iosHost}>
+          {secureTextEntry ? (
+            <UI.SecureField
+              placeholder={placeholder || (label ? `Enter ${label.toLowerCase()}` : '')}
+              onChangeText={onChangeText}
+              defaultValue={value}
+              modifiers={[
+                Modifiers.textFieldStyle('roundedBorder')
+              ]}
+            />
+          ) : (
+            <UI.TextField
+              placeholder={placeholder || (label ? `Enter ${label.toLowerCase()}` : '')}
+              onChangeText={onChangeText}
+              defaultValue={value}
+              modifiers={[
+                Modifiers.textFieldStyle('roundedBorder')
+              ]}
+            />
+          )}
+        </UI.Host>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, style]}>
@@ -48,6 +79,10 @@ export default function NativeInput({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
+  },
+  iosHost: {
+    height: 36, // Standard SwiftUI TextField height in a roundedBorder style
+    marginVertical: 4,
   },
   label: {
     fontSize: 14,

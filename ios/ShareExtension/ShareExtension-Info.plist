@@ -42,6 +42,6 @@
       <string>com.apple.share-services</string>
     </dict>
     <key>AppGroupIdentifier</key>
-    <string>group.com.sanuki.PrettyPrivacy</string>
+    <string>group.com.sanuki.PrettyPrivacyReact</string>
   </dict>
 </plist>

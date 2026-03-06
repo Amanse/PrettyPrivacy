@@ -10,7 +10,7 @@ import Social
 import UIKit
 
 class ShareViewController: UIViewController {
-  let hostAppGroupIdentifier = "group.com.sanuki.PrettyPrivacy"
+  let hostAppGroupIdentifier = "group.com.sanuki.PrettyPrivacyReact"
   let shareProtocol = "prettyprivacy"
   let sharedKey = "prettyprivacyShareKey"
   var sharedMedia: [SharedMediaFile] = []

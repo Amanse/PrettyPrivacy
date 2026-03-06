@@ -203,32 +203,34 @@ export async function decryptFiles(files, askPassphraseCallback) {
             // This part is similar to the old decryptFile, but adapted for the loop
             let binaryData;
             try {
-                const fileAsString = await FileSystem.readAsStringAsync(inputUri, {
-                    encoding: FileSystem.EncodingType.UTF8,
-                    length: 4096
+                // Read a small chunk as Base64 to detect if it's armored or binary
+                const initialChunkBase64 = await FileSystem.readAsStringAsync(inputUri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                    length: 4096,
+                    position: 0
                 });
-                if (fileAsString.includes('-----BEGIN PGP MESSAGE-----')) {
-                    binaryData = dearmor(fileAsString);
+
+                const initialBytes = toByteArray(initialChunkBase64);
+                const initialText = String.fromCharCode.apply(null, initialBytes);
+
+                if (initialText.includes('-----BEGIN PGP MESSAGE-----')) {
+                    // It's armored, we need to dearmor at least the header part
+                    // For detection, the first 4KB should be enough to find the session key packet
+                    const fullArmoredHeader = await FileSystem.readAsStringAsync(inputUri, {
+                        encoding: FileSystem.EncodingType.UTF8,
+                        length: 8192 // Read more to be safe with headers
+                    });
+                    binaryData = dearmor(fullArmoredHeader);
+                } else {
+                    // It's already binary
+                    binaryData = initialBytes;
                 }
             } catch (e) {
-                // Ignore error if reading as text fails; it's likely a binary file.
+                console.error("Error during header detection:", e);
             }
 
             if (!binaryData) {
-                const fileAsBase64 = await FileSystem.readAsStringAsync(inputUri, {
-                    encoding: FileSystem.EncodingType.Base64,
-                    length: 4096
-                });
-                const binaryString = atob(fileAsBase64);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-                binaryData = bytes;
-            }
-
-            if (!binaryData) {
-                throw new Error("Could not read PGP file header.");
+                throw new Error("Could not read or parse PGP file header.");
             }
 
             const encryptionType = detectEncryptionType(binaryData);
@@ -285,6 +287,8 @@ export async function decryptFiles(files, askPassphraseCallback) {
                         passphrases[keyId] = passphrase;
                     }
                 }
+
+                console.log("Reached here")
 
                 const nativeInputPath = inputUri.replace('file://', '');
                 const nativeOutputPath = outputUri.replace('file://', '');
@@ -502,12 +506,7 @@ function dearmor(armoredText) {
     }
 
     try {
-        const binaryString = atob(base64Content);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes;
+        return toByteArray(base64Content);
     } catch (e) {
         throw new Error("Invalid Base64 encoding in PGP message body.");
     }

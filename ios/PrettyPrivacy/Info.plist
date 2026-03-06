@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppGroupIdentifier</key>
-	<string>group.com.sanuki.PrettyPrivacy</string>
+	<string>group.com.sanuki.PrettyPrivacyReact</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -30,7 +30,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>prettyprivacy</string>
-				<string>com.sanuki.PrettyPrivacy</string>
+				<string>com.sanuki.PrettyPrivacyReact</string>
 			</array>
 		</dict>
 	</array>

@@ -1,4 +1,4 @@
-import {StyleSheet, View, FlatList, TouchableOpacity, Text, Platform} from "react-native";
+import {StyleSheet, View, FlatList, TouchableOpacity, Text, Platform, ActivityIndicator} from "react-native";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import React, {useCallback} from "react";
 import {useData} from "../../helpers/contextProvider";
@@ -6,8 +6,6 @@ import PGPKeyManager from "../../helpers/keyManager";
 import * as DocumentPicker from 'expo-document-picker';
 import * as cryptoOpts from '../../helpers/cryptoOps'
 import {useFocusEffect, useRouter, useNavigation} from "expo-router";
-import LoadingDialog from "../../components/loadingDialog";
-import PassphraseDialog from "../../components/passphraseDialog";
 import * as UI from '@expo/ui/swift-ui';
 import {Ionicons} from '@expo/vector-icons';
 
@@ -16,12 +14,13 @@ import NativeButton from '../../components/ui/NativeButton';
 import NativeCheckbox from '../../components/ui/NativeCheckbox';
 import NativeSelect from '../../components/ui/NativeSelect';
 import {useThemeColors} from '../../components/ui/Theme';
+import NativeDialog from '../../components/ui/NativeDialog';
 
 export default function EncryptFiles() {
     const [publicKey, setPublicKey] = React.useState("");
     const [signingKey, setSigningKey] = React.useState("");
     const [files, setFiles] = React.useState([]);
-    const [loading, setLoading] = React.useState(false);
+    const [activeModal, setActiveModal] = React.useState('none'); // 'none', 'loading', 'passphrase'
     const [toSign, setToSign] = React.useState(false);
     const {keys} = useData();
     const colors = useThemeColors();
@@ -30,7 +29,6 @@ export default function EncryptFiles() {
     const navigation = useNavigation();
 
     const [passphrase, setPassphrase] = React.useState("");
-    const [passphraseVisible, setPassphraseVisible] = React.useState(false);
     const [resolvePassphrase, setResolvePassphrase] = React.useState(null);
     const [checked, setChecked] = React.useState(false);
 
@@ -65,9 +63,8 @@ export default function EncryptFiles() {
         });
     }, [navigation, isSymmetric, colors.primary]);
 
-    const hideLoading = () => setLoading(false);
     const hidePassphrase = () => {
-        setPassphraseVisible(false);
+        setActiveModal('none');
         setPassphrase("");
         setChecked(false);
     }
@@ -77,7 +74,7 @@ export default function EncryptFiles() {
             return () => {
                 setFiles([]);
                 setPublicKey("");
-                setLoading(false);
+                setActiveModal('none');
                 setSigningKey("");
                 setToSign(false);
                 setIsSymmetric(false);
@@ -102,30 +99,32 @@ export default function EncryptFiles() {
         }
     };
 
-    const askPassphrase = () => {
-        setLoading(false);
-        setPassphraseVisible(true);
+    const askPassphrase = async () => {
+        setActiveModal('passphrase');
         return new Promise((resolve) => {
             setResolvePassphrase(() => resolve);
         });
     }
 
-    const handlePassphrase = () => {
-        if (resolvePassphrase) {
-            resolvePassphrase({passPhrase: passphrase, useBiometrics: checked});
+    const handlePassphrase = async () => {
+        const resolve = resolvePassphrase;
+        if (resolve) {
+            setResolvePassphrase(null);
+            setActiveModal('loading');
+            await new Promise(r => setTimeout(r, 100));
+            resolve({passPhrase: passphrase, useBiometrics: checked});
         }
-        hidePassphrase();
-        setLoading(true);
     };
 
     const encryptFiles = async () => {
-        setLoading(true);
+        setActiveModal('loading');
+        await new Promise(resolve => setTimeout(resolve, 200));
         let res;
         try {
             if (isSymmetric) {
                 if (!symmetricPassphrase) {
                     alert("Please enter a passphrase.");
-                    setLoading(false);
+                    setActiveModal('none');
                     return;
                 }
                 res = await cryptoOpts.encryptSymmetricFiles(files, symmetricPassphrase);
@@ -133,13 +132,13 @@ export default function EncryptFiles() {
                 const key = keyManager.getPublicKeyById(publicKey);
                 if (!key) {
                     alert("Selected public key not found.");
-                    setLoading(false);
+                    setActiveModal('none');
                     return;
                 }
                 res = await cryptoOpts.encryptFiles(files, key.keyString, toSign ? signingKey : null, askPassphrase);
             }
 
-            setLoading(false);
+            setActiveModal('none');
             router.push({
                 pathname: '/preview',
                 params: {files: JSON.stringify(res), showSignatures: false}
@@ -147,7 +146,7 @@ export default function EncryptFiles() {
         } catch (e) {
             console.error(e);
             alert(e.message);
-            setLoading(false);
+            setActiveModal('none');
         }
     }
 
@@ -224,17 +223,53 @@ export default function EncryptFiles() {
             >
                 Encrypt Files
             </NativeButton>
-            <LoadingDialog visible={loading} color={colors.primary} onDismiss={hideLoading}/>
-            <PassphraseDialog
-                visible={passphraseVisible}
-                onDismiss={hidePassphrase}
-                onSubmit={handlePassphrase}
-                passPhrase={passphrase}
-                setPassPhrase={setPassphrase}
-                checked={checked}
-                setChecked={setChecked}
-                submitLabel="Sign"
-            />
+
+            <NativeDialog 
+                visible={activeModal !== 'none'} 
+                onDismiss={() => setActiveModal('none')}
+                title={activeModal === 'passphrase' ? 'Enter private key password' : null}
+            >
+                {activeModal === 'loading' && (
+                    <View style={styles.loadingContent}>
+                        <ActivityIndicator animating={true} size="large" color={colors.primary} />
+                        <Text style={[styles.loadingText, { color: colors.text }]}>Processing...</Text>
+                    </View>
+                )}
+                {activeModal === 'passphrase' && (
+                    <View>
+                        <NativeInput
+                            secureTextEntry={true}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            value={passphrase}
+                            onChangeText={setPassphrase}
+                            placeholder="Passphrase"
+                        />
+                        <NativeCheckbox
+                            label="Save password with biometrics"
+                            checked={checked}
+                            onChange={setChecked}
+                            style={{ marginBottom: 20 }}
+                        />
+                        <View style={styles.actions}>
+                            <NativeButton 
+                                mode="text" 
+                                onPress={() => setActiveModal('none')} 
+                                style={{ flex: 1, marginRight: 8 }}
+                            >
+                                Cancel
+                            </NativeButton>
+                            <NativeButton 
+                                mode="contained" 
+                                onPress={handlePassphrase} 
+                                style={{ flex: 1, marginLeft: 8 }}
+                            >
+                                Sign
+                            </NativeButton>
+                        </View>
+                    </View>
+                )}
+            </NativeDialog>
         </SafeAreaView>
     );
 }
@@ -250,5 +285,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    loadingContent: {
+        alignItems: 'center',
+        padding: 10,
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    actions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 8,
     }
 });

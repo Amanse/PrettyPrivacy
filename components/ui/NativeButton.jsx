@@ -1,5 +1,7 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet, Platform, ActivityIndicator, Animated } from 'react-native';
+import { Pressable, Text, StyleSheet, Platform, ActivityIndicator, View } from 'react-native';
+import * as UI from '@expo/ui/swift-ui';
+import * as Modifiers from '@expo/ui/swift-ui/modifiers';
 import { useThemeColors } from './Theme';
 
 export default function NativeButton({ 
@@ -12,6 +14,27 @@ export default function NativeButton({
   textStyle 
 }) {
   const colors = useThemeColors();
+
+  if (Platform.OS === 'ios' && !loading) {
+    return (
+      <View style={[styles.iosWrapper, style]}>
+        <UI.Host style={{ height: 44 }}>
+          <UI.Button
+            label={typeof children === 'string' ? children : undefined}
+            onPress={onPress}
+            modifiers={[
+              Modifiers.buttonStyle(mode === 'contained' ? 'borderedProminent' : 'borderless'),
+              Modifiers.controlSize('regular'),
+              Modifiers.disabled(disabled),
+              Modifiers.tint(colors.primary)
+            ]}
+          >
+            {typeof children !== 'string' ? children : undefined}
+          </UI.Button>
+        </UI.Host>
+      </View>
+    );
+  }
 
   return (
     <Pressable
@@ -34,8 +57,7 @@ export default function NativeButton({
           { color: mode === 'contained' ? '#FFF' : (disabled ? colors.placeholder : colors.primary) },
           textStyle
         ]}>
-          {typeof children === 'string' ? children.toUpperCase() : children} 
-          {/* Uppercase for Android/Material feel? Or standard? Let's keep standard casing for iOS native feel. */}
+          {typeof children === 'string' ? children : children} 
         </Text>
       )}
     </Pressable>
@@ -43,6 +65,9 @@ export default function NativeButton({
 }
 
 const styles = StyleSheet.create({
+  iosWrapper: {
+    marginVertical: 4,
+  },
   base: {
     paddingVertical: 12,
     paddingHorizontal: 24,
