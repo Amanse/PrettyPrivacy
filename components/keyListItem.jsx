@@ -5,7 +5,7 @@ import * as Clipboard from "expo-clipboard";
 import { useData } from "../helpers/contextProvider";
 import * as SecureStore from "expo-secure-store";
 import CustomSnackbar from "./snackBar";
-import * as DropdownMenu from 'zeego/dropdown-menu';
+import * as UI from '@expo/ui/swift-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from './ui/Theme';
 
@@ -62,46 +62,55 @@ export default function KeyListItem({ item }) {
 
     return (
         <View>
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger>
-                    <Pressable style={({ pressed }) => [styles.container, pressed && { backgroundColor: colors.border + '40' }]}>
-                        <View style={styles.left}>
-                            <Ionicons name="key" size={24} color={colors.text} style={styles.icon} />
-                            <View>
-                                <Text style={[styles.title, { color: colors.text }]}>{item.userId}</Text>
-                                <Text style={[styles.description, { color: colors.placeholder }]}>{item.id}</Text>
+            <UI.Host>
+                <UI.Menu
+                    label={
+                        <Pressable style={({ pressed }) => [styles.container, pressed && { backgroundColor: colors.border + '40' }]}>
+                            <View style={styles.left}>
+                                <Ionicons name="key" size={24} color={colors.text} style={styles.icon} />
+                                <View>
+                                    <Text style={[styles.title, { color: colors.text }]}>{item.userId}</Text>
+                                    <Text style={[styles.description, { color: colors.placeholder }]}>{item.id}</Text>
+                                </View>
                             </View>
-                        </View>
-                        <View style={[styles.chip, { backgroundColor: colors.border }]}>
-                            <Text style={[styles.chipText, { color: colors.text }]}>
-                                {item.isPrivate ? "Private" : "Public"}
-                            </Text>
-                        </View>
-                    </Pressable>
-                </DropdownMenu.Trigger>
-
-                <DropdownMenu.Content>
-                    <DropdownMenu.Item key="copy-public" onSelect={() => copyPublicKeyToClipboard(item.id)}>
-                        <DropdownMenu.ItemTitle>Copy Public Key</DropdownMenu.ItemTitle>
-                    </DropdownMenu.Item>
+                            <View style={[styles.chip, { backgroundColor: colors.border }]}>
+                                <Text style={[styles.chipText, { color: colors.text }]}>
+                                    {item.isPrivate ? "Private" : "Public"}
+                                </Text>
+                            </View>
+                        </Pressable>
+                    }
+                >
+                    <UI.Button 
+                        label="Copy Public Key" 
+                        systemImage="doc.on.doc" 
+                        onPress={() => copyPublicKeyToClipboard(item.id)} 
+                    />
                     
                     {item.isPrivate && (
-                        <DropdownMenu.Item key="copy-private" onSelect={() => copyPrivateKeyToClipboard(item.id)}>
-                            <DropdownMenu.ItemTitle>Copy Private Key</DropdownMenu.ItemTitle>
-                        </DropdownMenu.Item>
+                        <UI.Button 
+                            label="Copy Private Key" 
+                            systemImage="key.fill" 
+                            onPress={() => copyPrivateKeyToClipboard(item.id)} 
+                        />
                     )}
 
                     {item.isPrivate && (
-                        <DropdownMenu.Item key="clear-pass" onSelect={handleClearPasswords}>
-                            <DropdownMenu.ItemTitle>Clear Saved Passwords</DropdownMenu.ItemTitle>
-                        </DropdownMenu.Item>
+                        <UI.Button 
+                            label="Clear Saved Passwords" 
+                            systemImage="lock.slash" 
+                            onPress={handleClearPasswords} 
+                        />
                     )}
 
-                    <DropdownMenu.Item key="delete" onSelect={handleDelete} destructive>
-                        <DropdownMenu.ItemTitle>Delete Key</DropdownMenu.ItemTitle>
-                    </DropdownMenu.Item>
-                </DropdownMenu.Content>
-            </DropdownMenu.Root>
+                    <UI.Button 
+                        label="Delete Key" 
+                        role="destructive" 
+                        systemImage="trash" 
+                        onPress={handleDelete} 
+                    />
+                </UI.Menu>
+            </UI.Host>
 
             <CustomSnackbar
                 visible={showClearPassSnackbar}

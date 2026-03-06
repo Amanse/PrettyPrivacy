@@ -1,7 +1,7 @@
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Stack } from 'expo-router';
-import Share from 'react-native-share';
+import * as Sharing from 'expo-sharing';
 import FileListItem from "../components/fileListItem";
 import { useThemeColors } from '../components/ui/Theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,18 +16,24 @@ export default function PreviewScreen() {
     const noneVerified = showSignatures && files.length > 0 && !files.some(file => file.isVerified);
 
     const shareAllFiles = async () => {
+        if (!(await Sharing.isAvailableAsync())) {
+            Alert.alert("Sharing not available", "Sharing is not supported on this device.");
+            return;
+        }
+
         try {
-            const fileUris = files.map(file => file.uri);
-            const shareOptions = {
-                title: 'Sharing Decrypted files',
-                message: 'Here are some files for you!',
-                urls: fileUris
+            if (files.length === 1) {
+                await Sharing.shareAsync(files[0].uri);
+            } else if (files.length > 1) {
+                // expo-sharing doesn't natively support multiple files in one call.
+                // We could loop, but it's annoying. For now, let's share the first or just let the user know.
+                // Actually, let's just loop and share them sequentially as a fallback for pure expo.
+                for (const file of files) {
+                    await Sharing.shareAsync(file.uri);
+                }
             }
-            await Share.open(shareOptions)
         } catch (e) {
-            if (e.message !== "User did not share") {
-                console.error(e.message)
-            }
+            console.error(e.message)
         }
     }
 

@@ -6,7 +6,7 @@ import PGPKeyManager from "../../helpers/keyManager";
 import { useRouter } from "expo-router";
 import KeyListItem from "../../components/keyListItem";
 import * as Clipboard from 'expo-clipboard';
-import * as DropdownMenu from 'zeego/dropdown-menu';
+import * as UI from '@expo/ui/swift-ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../../components/ui/Theme';
 
@@ -63,30 +63,34 @@ const KeysScreen = () => {
                 )}
 
                 <View style={styles.fabContainer}>
-                    <DropdownMenu.Root>
-                        <DropdownMenu.Trigger>
-                            <Pressable style={({ pressed }) => [
-                                styles.fab, 
-                                { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 }
-                            ]}>
-                                <Ionicons name="add" size={28} color="#FFF" />
-                            </Pressable>
-                        </DropdownMenu.Trigger>
-                        <DropdownMenu.Content>
-                            <DropdownMenu.Item key="import_file" onSelect={handleImportFile}>
-                                <DropdownMenu.ItemTitle>Import from file</DropdownMenu.ItemTitle>
-                                <DropdownMenu.ItemIcon ios={{ name: 'doc', pointSize: 24 }} />
-                            </DropdownMenu.Item>
-                            <DropdownMenu.Item key="generate" onSelect={handleGenerate}>
-                                <DropdownMenu.ItemTitle>Generate new key</DropdownMenu.ItemTitle>
-                                <DropdownMenu.ItemIcon ios={{ name: 'plus.square', pointSize: 24 }} />
-                            </DropdownMenu.Item>
-                            <DropdownMenu.Item key="import_clip" onSelect={handleImportClipboard}>
-                                <DropdownMenu.ItemTitle>Import from clipboard</DropdownMenu.ItemTitle>
-                                <DropdownMenu.ItemIcon ios={{ name: 'doc.on.clipboard', pointSize: 24 }} />
-                            </DropdownMenu.Item>
-                        </DropdownMenu.Content>
-                    </DropdownMenu.Root>
+                    <UI.Host>
+                        <UI.Menu
+                            label={
+                                <View style={[
+                                    styles.fab, 
+                                    { backgroundColor: colors.primary }
+                                ]}>
+                                    <Ionicons name="add" size={28} color="#FFF" />
+                                </View>
+                            }
+                        >
+                            <UI.Button
+                                label="Import from file"
+                                systemImage="doc"
+                                onPress={handleImportFile}
+                            />
+                            <UI.Button
+                                label="Generate new key"
+                                systemImage="plus.square"
+                                onPress={handleGenerate}
+                            />
+                            <UI.Button
+                                label="Import from clipboard"
+                                systemImage="doc.on.clipboard"
+                                onPress={handleImportClipboard}
+                            />
+                        </UI.Menu>
+                    </UI.Host>
                 </View>
             </View>
         </SafeAreaView>

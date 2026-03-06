@@ -1,8 +1,7 @@
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
-import Share from 'react-native-share';
 import React from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../components/ui/Theme';
@@ -19,14 +18,11 @@ export default function TextPreviewScreen() {
 
     const shareText = async () => {
         try {
-            await Share.open({
-                title: 'Sharing Decrypted Text',
+            await Share.share({
                 message: text,
             });
         } catch (e) {
-            if (e.message !== "User did not share") {
-                console.error(e.message);
-            }
+            console.error(e.message);
         }
     };
 

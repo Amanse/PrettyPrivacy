@@ -8,7 +8,7 @@ import * as cryptoOpts from '../../helpers/cryptoOps'
 import {useFocusEffect, useRouter, useNavigation} from "expo-router";
 import LoadingDialog from "../../components/loadingDialog";
 import PassphraseDialog from "../../components/passphraseDialog";
-import * as DropdownMenu from 'zeego/dropdown-menu';
+import * as UI from '@expo/ui/swift-ui';
 import {Ionicons} from '@expo/vector-icons';
 
 import NativeInput from '../../components/ui/NativeInput';
@@ -41,30 +41,29 @@ export default function EncryptFiles() {
         navigation.setOptions({
             headerTitle: "Encrypt Files",
                         headerRight: () => (
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <DropdownMenu.Root>
-                                    <DropdownMenu.Trigger>
-                                        <TouchableOpacity style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }}>
-                                            <Ionicons 
-                                                name={Platform.OS === 'ios' ? "ellipsis-horizontal-circle" : "ellipsis-vertical"} 
-                                                size={24} 
-                                                color={colors.text} 
-                                            />
-                                        </TouchableOpacity>
-                                    </DropdownMenu.Trigger>
-                                    <DropdownMenu.Content>
-                                        <DropdownMenu.Item key="symmetric" onSelect={() => setIsSymmetric(!isSymmetric)}>
-                                            <DropdownMenu.ItemTitle>
-                                                {isSymmetric ? "Disable Symmetric" : "Enable Symmetric"}
-                                            </DropdownMenu.ItemTitle>
-                                        </DropdownMenu.Item>
-                                    </DropdownMenu.Content>
-                                </DropdownMenu.Root>
-                            </View>
+                                <UI.Host>
+                                    <UI.Menu
+                                        label={
+                                            <TouchableOpacity style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }}>
+                                                <Ionicons 
+                                                    name={Platform.OS === 'ios' ? "ellipsis-horizontal-circle" : "ellipsis-vertical"} 
+                                                    size={24} 
+                                                    color={colors.primary} 
+                                                />
+                                            </TouchableOpacity>
+                                        }
+                                    >
+                                        <UI.Button
+                                            label={isSymmetric ? "Disable Symmetric" : "Enable Symmetric"}
+                                            systemImage={isSymmetric ? "lock.open" : "lock"}
+                                            onPress={() => setIsSymmetric(!isSymmetric)}
+                                        />
+                                    </UI.Menu>
+                                </UI.Host>
                         ),
             
         });
-    }, [navigation, isSymmetric, colors.text]);
+    }, [navigation, isSymmetric, colors.primary]);
 
     const hideLoading = () => setLoading(false);
     const hidePassphrase = () => {
