@@ -57,7 +57,7 @@ const KeysScreen = () => {
                     <View style={styles.emptyContainer}>
                         <Text style={[styles.title, { color: colors.text }]}>No keys found</Text>
                         <Text style={[styles.subtitle, { color: colors.placeholder }]}>
-                            Press '+' to import or generate a new key.
+                            Press &apos;+&apos; to import or generate a new key.
                         </Text>
                     </View>
                 )}

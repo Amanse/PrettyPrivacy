@@ -66,15 +66,19 @@ export default class PGPKeyManager {
             this.initStorages()
         }
 
-        const keyPair = await OpenPGP.generate({
-            name,
-            email,
-            passphrase: passphrase || "",
-        });
+        try {
+            const keyPair = await OpenPGP.generate({
+                name,
+                email,
+                passphrase: passphrase || "",
+            });
+            await this.saveKey(keyPair.privateKey);
 
-        await this.saveKey(keyPair.privateKey);
+            return "success"
+        } catch (e) {
+            return new Error("Failed to generate key pair. Please try again. Error: " + e.message);
+        }
 
-        return "success"
     }
 
     getPrivateKeyById(keyId) {

@@ -37,7 +37,9 @@ export default function GenerateKeyForm() {
         keyManager.generateKeyPairAndSave(name, email, passphrase).then(res => {
             if (res === "success") {
                 setUpdateKey((c) => !c)
-                router.navigate("/keys");
+                router.navigate("/Home/keys");
+            } else {
+                alert("Failed to generate key. Please try again.");
             }
         })
     };
