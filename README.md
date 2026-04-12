@@ -38,9 +38,7 @@ and install the generated apk file. Github releases coming soon.
 
 ## Screenshots
 
-<img width="540" height="1200" alt="Screenshot_1759068406" src="https://github.com/user-attachments/assets/f5f570af-b6a9-4713-8729-bdfc9273dc4a" />
-<img width="540" height="1200" alt="Screenshot_1759068452" src="https://github.com/user-attachments/assets/1dd01427-714a-4d74-8bc1-75bb4f40f457" />
-<img width="540" height="1200" alt="Screenshot_1759068471" src="https://github.com/user-attachments/assets/d32f5d2e-cfbf-495f-a4d4-48ce47aedd32" />
-<img width="540" height="1200" alt="Screenshot_1759068484" src="https://github.com/user-attachments/assets/c3a75027-a737-47b0-8284-1dcf4b8d4172" />
-<img width="540" height="1200" alt="Screenshot_1759068501" src="https://github.com/user-attachments/assets/bd65b2e2-764b-4b37-8980-3f4626062917" />
-<img width="540" height="1200" alt="Screenshot_1760292077" src="https://github.com/user-attachments/assets/b7112e1e-d6be-4ba9-8367-092e76ec8fc4" />
+<img width="603" height="1311" alt="Screenshot 2026-04-12 at 8 52 04 PM" src="https://github.com/user-attachments/assets/e6874e06-0ed5-4e0a-aec5-28dc473245e0" />
+<img width="603" height="1311" alt="Screenshot 2026-04-12 at 8 52 29 PM" src="https://github.com/user-attachments/assets/8c6d3e8c-0362-40ac-8844-520ea40ce8db" />
+<img width="603" height="1311" alt="Screenshot 2026-04-12 at 8 54 53 PM" src="https://github.com/user-attachments/assets/65464d2d-f1ee-48e4-868d-02a42fd0da67" />
+<img width="603" height="1311" alt="Screenshot 2026-04-12 at 8 53 04 PM" src="https://github.com/user-attachments/assets/f450b6a5-5138-4204-b5d8-2fdbb47aa2e7" />
