@@ -3,6 +3,10 @@ apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
+def uploadKeystoreFile = rootProject.file("app/release-upload.keystore")
+def uploadKeystorePasswordFile = rootProject.file(".release-keystore-password")
+def uploadKeystoreAvailable = uploadKeystoreFile.exists() && uploadKeystorePasswordFile.exists()
+def uploadKeystorePassword = uploadKeystoreAvailable ? uploadKeystorePasswordFile.text.trim() : null
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -95,30 +99,21 @@ android {
         versionCode 4
         versionName "2.0.1"
     }
-    signingConfigs {
-        debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-        }
-        release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+    if (uploadKeystoreAvailable) {
+        signingConfigs {
+            release {
+                storeFile uploadKeystoreFile
+                storePassword uploadKeystorePassword
+                keyAlias 'upload'
+                keyPassword uploadKeystorePassword
             }
         }
     }
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-        }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.release
+            if (uploadKeystoreAvailable) {
+                signingConfig signingConfigs.release
+            }
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
